@@ -11,7 +11,7 @@ public class MazeRoute {
 	// private class variables
 	private static int numMazeRouteDeclarations = 0;
 	private int mazeRouteId; // used to differentiate MazeRoute objects
-	private boolean isValidRoute;
+	private boolean isValid;
 	private List<MazeCell> route;
 	
 	/**
@@ -19,8 +19,8 @@ public class MazeRoute {
 	 * and invalidates the route until a route has been added.
 	 */
 	public MazeRoute() {
-		mazeRouteId = ++numMazeRouteDeclarations;
-		this.isValidRoute = false;
+		this.mazeRouteId = ++numMazeRouteDeclarations;
+		this.isValid = false;
 	}
 	
 	/**
@@ -30,9 +30,10 @@ public class MazeRoute {
 	 * 
 	 * @param route - a List of MazeCells representing a series of passages in order of traversal
 	 * @return true if the route was added, false if the route was not added
+	 * @throws UninitializedObjectException if any MazeCell being added to the MazeRoute is invalid
 	 */
-	public boolean addCells(List<MazeCell> route) {
-		if(!isValidRoute && route != null){ // copy the route if the route is already invalid
+	public boolean addCells(List<MazeCell> route) throws UninitializedObjectException {
+		if(!isValid && route != null){ // copy the route if the route is already invalid
 			// copies the List to avoid inadvertent changes
 			this.route = new LinkedList<MazeCell>();
 			for(MazeCell cell : route) {
@@ -40,10 +41,10 @@ public class MazeRoute {
 					this.route.add(cell);
 				} else { // if at any point a cell is invalid, route is invalid and not updated
 					this.route = null;
-					return false;
+					throw new UninitializedObjectException();
 				}
 			}
-			isValidRoute = true;
+			isValid = true;
 			return true;
 		} else { // don't copy the route if the route was already valid or the input was null
 			return false;
@@ -57,7 +58,7 @@ public class MazeRoute {
 	 * @return true if the MazeRoute is valid, false otherwise
 	 */
 	public boolean isValid() {
-		return isValidRoute;
+		return isValid;
 	}
 	
 	/**
@@ -68,49 +69,52 @@ public class MazeRoute {
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	public List<MazeCell> getCells() throws UninitializedObjectException {
-		// generate an exception if maze route is invalid
-		if(!isValidRoute) {
-			throw new UninitializedObjectException();
-		}
+		validityCheck();
 		// copy the cells to a new List to avoid inadvertent changes to the route
-		List<MazeCell> list = new LinkedList<MazeCell>();
-		for(MazeCell cell : route) {
-			list.add(cell);
-		}
-		return list;
+		return new LinkedList<MazeCell>(route);
 	}
+
 	
 	/**
 	 * Calculates the time required to traverse the MazeRoute. The travel time will
-	 * be equal to Integer.MAX_VALUE if the route is impassable or there is no route
+	 * be equal to MazeCell.IMPASSABLE if the route is impassable or there is no route
 	 * between two consecutive MazeCells.
 	 * 
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	public Integer travelTime() throws UninitializedObjectException {
-		// generate an exception if maze route is invalid
-		if(!isValidRoute) {
-			throw new UninitializedObjectException();
-		}
+		validityCheck();
 		// add up the travel time from one MazeCell to the next
 		int totalTime = 0;
 		MazeCell prevCell = null;
-		for(MazeCell cell : route) {
+		for(MazeCell cell : route) { //TODO don't use a foreach loop here
 			if(prevCell == null) { // only taken the first iteration
 				prevCell = cell;
 				continue;
 			}
 			Integer time = prevCell.passageTimeTo(cell);
-			if(time.intValue() < Integer.MAX_VALUE) { // only add times if the passage is passable
+			if(time.intValue() < MazeCell.IMPASSABLE) { // only add times if the passage is passable
 				totalTime += time.intValue();
 			} else { // return impassable if one passage is impassable
-				return new Integer(Integer.MAX_VALUE);
+				return new Integer(MazeCell.IMPASSABLE);
 			}
 			// increment the prevCell for the next iteration
 			prevCell = cell;
 		}
 		return new Integer(totalTime);
+	}
+	
+	/**
+	 * Generates an exception if MazeRoute is invalid.
+	 * 
+	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
+	 */
+	private void validityCheck() throws UninitializedObjectException {
+		// generate an exception if maze route is invalid
+		if(!isValid) {
+			throw new UninitializedObjectException();
+		}
 	}
 	
 	/**
@@ -120,11 +124,8 @@ public class MazeRoute {
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	@Override
-	public String toString() throws UninitializedObjectException {
-		// generate an exception if maze route is invalid
-		if(!isValidRoute) {
-			throw new UninitializedObjectException();
-		}
+	public String toString() { //TODO find better way to do this
+//		validityCheck();
 		// build a String to show the path
 		StringBuilder sb = new StringBuilder();
 		sb.append("MazeRoute ID " + mazeRouteId + ": ");
@@ -133,7 +134,7 @@ public class MazeRoute {
 			return sb.toString();
 		}
 		// add each MazeCell to the StringBuilder
-		for(MazeCell cell : route) {
+		for(MazeCell cell : route) { //TODO don't use a foreach loop here
 			if(!route.get(0).equals(cell)) { // if its not the start of the route
 				sb.append(" -> ");				
 			} /* else {

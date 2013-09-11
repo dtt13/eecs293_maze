@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -17,22 +17,22 @@ import org.junit.Test;
  */
 public class MazeRouteTest {
 	// private class variables
-	private static List<MazeCell> route;
-	private static MazeRoute routeOne;
-	private static MazeRoute routeTwo;
-	private static MazeRoute routeThree;
-	private static MazeCell startOne;
-	private static MazeCell startTwo;
-	private static MazeCell middleOne;
-	private static MazeCell endOne;
-	private static MazeCell endTwo;
+	private List<MazeCell> route;
+	private MazeRoute routeOne;
+	private MazeRoute routeTwo;
+	private MazeRoute routeThree;
+	private MazeCell startOne;
+	private MazeCell startTwo;
+	private MazeCell middleOne;
+	private MazeCell endOne;
+	private MazeCell endTwo;
 	
 	/**
 	 * Creates a world map of MazeCells and single MazeRoute through this world
 	 * to be used throughout the testing of the MazeRoute class.
 	 */
-	@BeforeClass
-	public static void initializeCellsAndRoutes() {
+	@Before
+	public void initializeCellsAndRoutes() {
 		// create a "world map" of passages
 		endOne = new MazeCell();
 		endOne.addPassages(new HashMap<MazeCell, Integer>());
@@ -104,12 +104,16 @@ public class MazeRouteTest {
 	 */
 	@Test
 	public void testGetCells() {
-		// test with an empty route
-		MazeRoute test = new MazeRoute();
-		test.addCells(new LinkedList<MazeCell>());
-		assertEquals("getCells() method does not return the correct route List", new LinkedList<MazeCell>(), test.getCells());
-		// test with a non-empty route
-		assertEquals("getCells() method does not return the correct route List", route, routeOne.getCells());
+		try {
+			// test with an empty route
+			MazeRoute test = new MazeRoute();
+			test.addCells(new LinkedList<MazeCell>());
+			assertEquals("getCells() method does not return the correct route List", new LinkedList<MazeCell>(), test.getCells());
+			// test with a non-empty route
+			assertEquals("getCells() method does not return the correct route List", route, routeOne.getCells());
+		} catch(UninitializedObjectException e) {
+			fail("getCells() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**
@@ -117,12 +121,16 @@ public class MazeRouteTest {
 	 */
 	@Test
 	public void testTravelTime() {
-		// test route with no passage
-		assertEquals("travelTime() method does not return the correct travel time when there is no passage", new Integer(Integer.MAX_VALUE), routeTwo.travelTime());
-		// test route with impassable passage
-		assertEquals("travelTime() method does not return the correct travel time when there is an impassable passage", new Integer(Integer.MAX_VALUE), routeThree.travelTime());
-		// test route with all passable passages
-		assertEquals("travelTime() method does not return the correct travel time when all passages are passable", new Integer(2), routeOne.travelTime());
+		try {
+			// test route with no passage
+			assertEquals("travelTime() method does not return the correct travel time when there is no passage", new Integer(Integer.MAX_VALUE), routeTwo.travelTime());
+			// test route with impassable passage
+			assertEquals("travelTime() method does not return the correct travel time when there is an impassable passage", new Integer(Integer.MAX_VALUE), routeThree.travelTime());
+			// test route with all passable passages
+			assertEquals("travelTime() method does not return the correct travel time when all passages are passable", new Integer(2), routeOne.travelTime());
+		} catch(UninitializedObjectException e) {
+			fail("travelTime() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**
@@ -153,13 +161,6 @@ public class MazeRouteTest {
 		try {
 			test.travelTime();
 			fail("travelTime() method should have thrown an UninitializedObjectException");
-		} catch(UninitializedObjectException e) {
-			// test passed because exception was thrown
-		}
-		// toString() test
-		try {
-			test.toString();
-			fail("toString() method should have thrown an UninitializedObjectException");
 		} catch(UninitializedObjectException e) {
 			// test passed because exception was thrown
 		}

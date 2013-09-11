@@ -7,7 +7,7 @@
  * @author Derrick Tilsner dtt13
  *
  */
-public class UninitializedObjectException extends RuntimeException {
+public class UninitializedObjectException extends Exception {
 	
 	/**
 	 * Basic constructor for the UninitializedObjectException class

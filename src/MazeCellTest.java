@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -17,21 +17,21 @@ import org.junit.Test;
  */
 public class MazeCellTest {
 	//private class variables
-	private static Map<MazeCell, Integer> passages;
-	private static MazeCell destOne;
-	private static MazeCell destTwo;
-	private static MazeCell destThree;
-	private static MazeCell srcOne;
-	private static MazeCell srcTwo;
-	private static MazeCell srcThree;
-	private static MazeCell srcFour;
+	private Map<MazeCell, Integer> passages;
+	private MazeCell destOne;
+	private MazeCell destTwo;
+	private MazeCell destThree;
+	private MazeCell srcOne;
+	private MazeCell srcTwo;
+	private MazeCell srcThree;
+	private MazeCell srcFour;
 	
 	/**
 	 * Initializes a variety of MazeCells to be used throughout the testing
 	 * of the MazeCell class.
 	 */
-	@BeforeClass
-	public static void initializeMazeCells() {
+	@Before
+	public void initializeMazeCells() {
 		// create destination cells
 		// note that all destination cells will be dead ends for simplicity
 		destOne = new MazeCell();
@@ -54,15 +54,15 @@ public class MazeCellTest {
 		srcTwo.addPassages(passages);
 		// srcThree will be different from srcOne and srcTwo and will contain an impassable connection
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
-		map.put(destOne, new Integer(Integer.MAX_VALUE));
+		map.put(destOne, new Integer(MazeCell.IMPASSABLE));
 		map.put(destThree, new Integer(3));
 		srcThree = new MazeCell();
 		srcThree.addPassages(map);
 		// srcFour will only contain impassiable connections
 		map = new HashMap<MazeCell, Integer>();
-		map.put(destOne, new Integer(Integer.MAX_VALUE));
-		map.put(destTwo, new Integer(Integer.MAX_VALUE));
-		map.put(destThree, new Integer(Integer.MAX_VALUE));
+		map.put(destOne, new Integer(MazeCell.IMPASSABLE));
+		map.put(destTwo, new Integer(MazeCell.IMPASSABLE));
+		map.put(destThree, new Integer(MazeCell.IMPASSABLE));
 		srcFour = new MazeCell();
 		srcFour.addPassages(map);
 	}
@@ -89,7 +89,7 @@ public class MazeCellTest {
 	 * Tests the hashCode() method for multiple MazeCell objects.
 	 */
 	@Test
-	public void testHashCode() {
+	public void testHashCode() { //TODO test for loop
 		// test return value is the same as the hashcode of the passages map
 		assertEquals("hashCode() method is not returning the proper value", passages.hashCode(), srcOne.hashCode());
 		// test if two MazeCells are the same
@@ -103,6 +103,7 @@ public class MazeCellTest {
 	 */
 	@Test
 	public void testPassages() {
+		try {
 		// test with no impassable passages
 		assertEquals("passages() method does not return the correct passages Map", passages, srcOne.passages());
 		// test with all impassable passages
@@ -111,6 +112,9 @@ public class MazeCellTest {
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
 		map.put(destThree, new Integer(3));
 		assertEquals("passages() method does not return the correct passages Map", map, srcThree.passages());
+		} catch (UninitializedObjectException e) {
+			fail("passages() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**
@@ -118,12 +122,16 @@ public class MazeCellTest {
 	 */
 	@Test
 	public void testPassageTimeTo() {
-		// test a MazeCell that is passable
-		assertEquals("passageTimeTo() method does not return the correct time", new Integer(3), srcThree.passageTimeTo(destThree));
-		// test a MazeCell this is impassable
-		assertEquals("passageTimeTo() method does not return the correct time", new Integer(Integer.MAX_VALUE), srcThree.passageTimeTo(destOne));
-		// test a MazeCell that has no passage
-		assertEquals("passageTimeTo() method does not handle non-adjoining MazeCell inputs", new Integer(Integer.MAX_VALUE), srcThree.passageTimeTo(destTwo));
+		try {
+			// test a MazeCell that is passable
+			assertEquals("passageTimeTo() method does not return the correct time", new Integer(3), srcThree.passageTimeTo(destThree));
+			// test a MazeCell this is impassable
+			assertEquals("passageTimeTo() method does not return the correct time", new Integer(MazeCell.IMPASSABLE), srcThree.passageTimeTo(destOne));
+			// test a MazeCell that has no passage
+			assertEquals("passageTimeTo() method does not handle non-adjoining MazeCell inputs", new Integer(MazeCell.IMPASSABLE), srcThree.passageTimeTo(destTwo));
+		} catch (UninitializedObjectException e) {
+			fail("passageTimeTo() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**
@@ -131,14 +139,18 @@ public class MazeCellTest {
 	 */
 	@Test
 	public void testConnectedCells() {
-		// test with no impassable passages
-		assertEquals("connectedCells() method does not return the correct MazeCells", passages.keySet(), srcOne.connectedCells());
-		// test with all impassable passages
-		assertEquals("connectedCells() method returns MazeCells that shouldn't be passable", new HashSet<MazeCell>(), srcFour.connectedCells());
-		// test with some impassable passages
-		Set<MazeCell> set = new HashSet<MazeCell>();
-		set.add(destThree);
-		assertEquals("connectedCells() method does not return the correct MazeCells", set, srcThree.connectedCells());
+		try {
+			// test with no impassable passages
+			assertEquals("connectedCells() method does not return the correct MazeCells", passages.keySet(), srcOne.connectedCells());
+			// test with all impassable passages
+			assertEquals("connectedCells() method returns MazeCells that shouldn't be passable", new HashSet<MazeCell>(), srcFour.connectedCells());
+			// test with some impassable passages
+			Set<MazeCell> set = new HashSet<MazeCell>();
+			set.add(destThree);
+			assertEquals("connectedCells() method does not return the correct MazeCells", set, srcThree.connectedCells());
+		} catch (UninitializedObjectException e) {
+			fail("connectedCells() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**
@@ -146,14 +158,18 @@ public class MazeCellTest {
 	 */
 	@Test
 	public void testIsDeadEnd() {
-		// test with cell that is not a dead end
-		assertFalse("isDeadEnd() is incorrect when not a dead end", srcOne.isDeadEnd());
-		// test with no passages
-		assertTrue("isDeadEnd() is incorrect when there is a dead end", destOne.isDeadEnd());
-		// test with all impassable passages
-		assertTrue("isDeadEnd() is incorrect when there is a dead end", srcFour.isDeadEnd());
-		// test with some impassable passages
-		assertFalse("isDeadEnd() is incorrect when not a dead end", srcThree.isDeadEnd());
+		try {
+			// test with cell that is not a dead end
+			assertFalse("isDeadEnd() is incorrect when not a dead end", srcOne.isDeadEnd());
+			// test with no passages
+			assertTrue("isDeadEnd() is incorrect when there is a dead end", destOne.isDeadEnd());
+			// test with all impassable passages
+			assertTrue("isDeadEnd() is incorrect when there is a dead end", srcFour.isDeadEnd());
+			// test with some impassable passages
+			assertFalse("isDeadEnd() is incorrect when not a dead end", srcThree.isDeadEnd());
+		} catch (UninitializedObjectException e) {
+			fail("isDeadEnd() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**

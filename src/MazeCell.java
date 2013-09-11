@@ -10,10 +10,12 @@ import java.util.Set;
  * 
  */
 public class MazeCell {
+	// class constants
+	public final static int IMPASSABLE = Integer.MAX_VALUE;
 	// private class variables
 	private static int numMazeCellDeclarations = 0;
 	private int mazeCellId; // used to differentiate MazeCell objects
-	private boolean isValidCell;
+	private boolean isValid;
 	private Map<MazeCell, Integer> passages;
 	
 	/**
@@ -21,8 +23,8 @@ public class MazeCell {
 	 * and invalidates the cell until passages have been added.
 	 */
 	public MazeCell() {
-		mazeCellId = ++numMazeCellDeclarations;
-		this.isValidCell = false;
+		this.mazeCellId = ++numMazeCellDeclarations;
+		this.isValid = false;
 	}
 	
 	/**
@@ -35,13 +37,13 @@ public class MazeCell {
 	 * @return true if the passages were added, false if the passages were not added
 	 */
 	public boolean addPassages(Map<MazeCell, Integer> passages) {
-		if (!isValidCell && passages != null) { // copy the passages if the cell is invalid
+		if (!isValid && passages != null) { // copy the passages if the cell is invalid
 			// copies the Map to avoid inadvertent changes
 			this.passages = new HashMap<MazeCell, Integer>();
 			for(MazeCell cell : passages.keySet()) {
 				this.passages.put(cell, passages.get(cell));
 			}
-			isValidCell = true;
+			isValid = true;
 			return true;
 		} else { // don't copy the passages if the cell is already valid or the input was null
 			return false;
@@ -55,19 +57,7 @@ public class MazeCell {
 	 * @return true if the MazeCell has been validated, false otherwise
 	 */
 	public boolean isValid() {
-		return isValidCell;
-	}
-	
-	/**
-	 * Generates a unique hash code integer for each MazeCell. The hash code for MazeCells
-	 * with identical passages is the same.
-	 * 
-	 * @return a hash code for the MazeCell object
-	 */
-	@Override
-	public int hashCode() {
-		// use the Map's hashCode since identical Maps imply identical cells
-		return passages.hashCode();
+		return isValid;
 	}
 
 	/**
@@ -80,19 +70,16 @@ public class MazeCell {
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public Map<MazeCell, Integer> passages() throws UninitializedObjectException {
-		// generate an exception if this MazeCell is invalid
-		if(!isValidCell) {
-			throw new UninitializedObjectException();
-		}
+		validityCheck();
 		// copy passages that are passable into a new Map to avoid inadvertent changes
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
 		for(MazeCell cell : passages.keySet()) {
 			Integer value = passages.get(cell);
-			if(value.intValue() < Integer.MAX_VALUE) {
+			if(value.intValue() != IMPASSABLE) {
 				map.put(cell, passages.get(cell));
-			} /*else {
+			} else {
 				// don't add the passage to the HashMap if it is impassable
-			}*/
+			}
 		}
 		return map;
 	}
@@ -107,17 +94,14 @@ public class MazeCell {
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public Integer passageTimeTo(MazeCell cell) throws UninitializedObjectException {
-		// generate an exception if maze cell is invalid
-		if(!isValidCell) {
-			throw new UninitializedObjectException();
-		}
+		validityCheck();
 		// use the Map of passages to find the time
 		Integer time = passages.get(cell);
 		if(time == null) { // if this key has no value, assume the passage is impassable
-			time = Integer.MAX_VALUE;
-		} /* else {
+			time = IMPASSABLE;
+		} else {
 			// don't alter the time
-		}*/
+		}
 		return time;
 		
 	}
@@ -130,19 +114,16 @@ public class MazeCell {
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public Set<MazeCell> connectedCells() throws UninitializedObjectException {
-		// generate an exception if maze cell is invalid
-		if(!isValidCell) {
-			throw new UninitializedObjectException();
-		}
+		validityCheck();
 		// copy passages that are passable into a new Set to avoid inadvertent changes to the Map
 		Set<MazeCell> set = new HashSet<MazeCell>();
 		for(MazeCell cell : passages.keySet()) {
 			Integer time = passages.get(cell);
-			if(time.intValue() < Integer.MAX_VALUE) {
+			if(time.intValue() != IMPASSABLE) {
 				set.add(cell);
-			} /*else {
+			} else {
 				// don't add the passage to the Set if it is impassable
-			}*/
+			}
 		}
 		return set;
 	}
@@ -155,21 +136,32 @@ public class MazeCell {
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public boolean isDeadEnd() throws UninitializedObjectException {
-		// generate an exception if maze cell is invalid
-		if(!isValidCell) {
-			throw new UninitializedObjectException();
-		}
-		// iterate through passages of this MazeCell
-		for(MazeCell cell : passages.keySet()) {
-			Integer time = passages.get(cell);
-			if(time.intValue() < Integer.MAX_VALUE) { // return false as soon as a passable passage is found
-				return false;
-			}
-		}
-		// no passable passages were found, so only impassable ones are left meaning this is a deadend
-		return true;
+		return connectedCells().isEmpty();
 	}
 	
+	/**
+	 * Generates an exception if the MazeCell is invalid.
+	 * 
+	 * @throws UninitializedObjectException only thrown if MazeCell is invalid
+	 */
+	private void validityCheck() throws UninitializedObjectException {
+		if(!isValid) {
+			throw new UninitializedObjectException();
+		}
+	}
+	
+	/**
+	 * Generates a unique hash code integer for each MazeCell. The hash code for MazeCells
+	 * with identical passages is the same.
+	 * 
+	 * @return a hash code for the MazeCell object
+	 */
+	@Override
+	public int hashCode() {
+		// use the Map's hashCode since identical Maps imply identical cells
+		return passages.hashCode();
+	}
+
 	/**
 	 * Creates a unique String for each MazeCell instance.
 	 * 
