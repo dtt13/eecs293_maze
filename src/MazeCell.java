@@ -11,6 +11,9 @@ import java.util.Set;
  */
 public class MazeCell {
 	// class constants
+	/**
+	 * Represents an impassable passage
+	 */
 	public final static int IMPASSABLE = Integer.MAX_VALUE;
 	// private class variables
 	private static int numMazeCellDeclarations = 0;
@@ -169,6 +172,9 @@ public class MazeCell {
 	 */
 	@Override
 	public String toString() {
+		if(!isValid) {
+			return "Uninitialized MazeCell";
+		}
 		return "MazeCell ID " + mazeCellId;
 	}
 }

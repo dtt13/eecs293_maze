@@ -1,5 +1,6 @@
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * The MazeRoute class represents a single path in a maze composed of a list of MazeCells.
@@ -32,7 +33,7 @@ public class MazeRoute {
 	 * @return true if the route was added, false if the route was not added
 	 * @throws UninitializedObjectException if any MazeCell being added to the MazeRoute is invalid
 	 */
-	public boolean addCells(List<MazeCell> route) throws UninitializedObjectException {
+	public boolean addCells(List<MazeCell> route) throws UninitializedObjectException { //TODO McCabe?
 		if(!isValid && route != null){ // copy the route if the route is already invalid
 			// copies the List to avoid inadvertent changes
 			this.route = new LinkedList<MazeCell>();
@@ -83,24 +84,23 @@ public class MazeRoute {
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	public Integer travelTime() throws UninitializedObjectException {
+	public Integer travelTime() throws UninitializedObjectException { //TODO try with a list iterator
 		validityCheck();
 		// add up the travel time from one MazeCell to the next
+//		ListIterator<MazeCell> routeIterate = route.listIterator();
+		MazeCell currentCell;
+		MazeCell prevCell = route.get(0);
 		int totalTime = 0;
-		MazeCell prevCell = null;
-		for(MazeCell cell : route) { //TODO don't use a foreach loop here
-			if(prevCell == null) { // only taken the first iteration
-				prevCell = cell;
-				continue;
-			}
-			Integer time = prevCell.passageTimeTo(cell);
-			if(time.intValue() < MazeCell.IMPASSABLE) { // only add times if the passage is passable
-				totalTime += time.intValue();
+		for(int i = 1; i < route.size(); i++) {
+			currentCell = route.get(i);
+			Integer time = prevCell.passageTimeTo(currentCell);
+			if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
+				totalTime += time;
 			} else { // return impassable if one passage is impassable
 				return new Integer(MazeCell.IMPASSABLE);
 			}
 			// increment the prevCell for the next iteration
-			prevCell = cell;
+			prevCell = currentCell;
 		}
 		return new Integer(totalTime);
 	}
@@ -118,30 +118,48 @@ public class MazeRoute {
 	}
 	
 	/**
+	 * Generates a String only containing the route of MazeCells. The
+	 * route must contain at least one MazeCell to be used properly.
+	 * 
+	 * @return a String representing the path of MazeCells in the route
+	 */
+	private String buildRouteString() {
+		StringBuilder builder = new StringBuilder();
+		ListIterator<MazeCell> routeIterate = route.listIterator();
+		// add the first MazeCell in the path
+		MazeCell cell = routeIterate.next();
+		builder.append(cell);
+		while(routeIterate.hasNext()) {
+			cell = routeIterate.next();
+			builder.append(" -> ");
+			builder.append(cell);
+		}
+		return builder.toString();
+	}
+
+	/**
 	 * Creates a unique String for each MazeRoute instance.
 	 * 
 	 * @return a String representation of the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	@Override
-	public String toString() { //TODO find better way to do this
-//		validityCheck();
+	public String toString() {
 		// build a String to show the path
-		StringBuilder sb = new StringBuilder();
-		sb.append("MazeRoute ID " + mazeRouteId + ": ");
-		if(route.isEmpty()) {
-			sb.append("empty");
-			return sb.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("MazeRoute ID " + mazeRouteId + ": ");
+		try {
+			if(travelTime() == MazeCell.IMPASSABLE) {
+				builder.append("no passage");
+			} else if(route.isEmpty()) {
+				builder.append("empty");
+			} else { // add each MazeCell to the StringBuilder
+				builder.append(buildRouteString());
+			}
+			return builder.toString();
+		} catch (UninitializedObjectException e) {
+			return "Uninitialized MazeRoute";
 		}
-		// add each MazeCell to the StringBuilder
-		for(MazeCell cell : route) { //TODO don't use a foreach loop here
-			if(!route.get(0).equals(cell)) { // if its not the start of the route
-				sb.append(" -> ");				
-			} /* else {
-				// don't append an arrow (->) at the start, for formating neatness
-			}*/
-			sb.append(cell);
-		}
-		return sb.toString();
 	}
+
 }
