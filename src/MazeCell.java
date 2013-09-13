@@ -122,7 +122,7 @@ public class MazeCell {
 		Set<MazeCell> set = new HashSet<MazeCell>();
 		for(MazeCell cell : passages.keySet()) {
 			Integer time = passages.get(cell);
-			if(time.intValue() != IMPASSABLE) {
+			if(time != IMPASSABLE) {
 				set.add(cell);
 			} else {
 				// don't add the passage to the Set if it is impassable

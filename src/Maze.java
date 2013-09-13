@@ -1,4 +1,6 @@
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,7 +32,7 @@ public class Maze {
 	 * @return true if the cells were added, false if the cells were not added
 	 * @throws UninitializedObjectException if any MazeCell being added to the Maze is invalid
 	 */
-	public boolean addCells(Set<MazeCell> cells) throws UninitializedObjectException {
+	public boolean addCells(Set<MazeCell> cells) throws UninitializedObjectException { //TODO McCabe?
 		if(!isValid && cells != null){ // copy the cells if the maze is already invalid
 			// copies the List to avoid inadvertent changes
 			this.cells = new HashSet<MazeCell>();
@@ -59,10 +61,19 @@ public class Maze {
 		return isValid;
 	}
 	
+	/**
+	 *TODO
+	 * 
+	 * @param initialCell - the starting MazeCell of the route to be created
+	 * @return a MazeRoute of one possible path through the Maze
+	 * @throws UninitializedObjectException - only thrown if the Maze is invalid
+	 */
 	public MazeRoute routeFirst(MazeCell initialCell) throws UninitializedObjectException {
 		validityCheck();
-		
-		return new MazeRoute();
+		List<MazeCell> path = routePath(initialCell, new LinkedList<MazeCell>());
+		MazeRoute route = new MazeRoute();
+		route.addCells(path);
+		return route;
 	}
 	
 	/**
@@ -74,6 +85,29 @@ public class Maze {
 		if(!isValid) {
 			throw new UninitializedObjectException();
 		}
+	}
+	
+	/**
+	 * Recursively generates a route until a the mouse hits a dead end or
+	 * visits the same sell twice.
+	 * 
+	 * @param cell - the MazeCell that the mouse is currently in
+	 * @param path - a List of MazeCells that mouse has previously visited
+	 * @return a List contain the new path
+	 * @throws UninitializedObjectException - only
+	 */
+	private List<MazeCell> routePath(MazeCell cell, List<MazeCell> path)
+			throws UninitializedObjectException {
+		if(cell.isDeadEnd() || path.contains(cell)) { // if dead end or seen before
+			path.add(cell);
+		} else { // if never-before-seen cell
+			path.add(cell);
+			MazeCell passages[] = (MazeCell[])cell.connectedCells().toArray();
+			int arbitraryPathIndex = (int)(passages.length * Math.random());
+			MazeCell nextCell = passages[arbitraryPathIndex];
+			path = routePath(nextCell, path);
+		}
+		return path;
 	}
 	
 	@Override
