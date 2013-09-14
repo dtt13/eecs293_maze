@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,8 @@ import java.util.Set;
  */
 public class Maze {
 	// private class variables
+	private static int numMazeDeclarations = 0;
+	private int mazeId;
 	private boolean isValid;
 	private Set<MazeCell> cells;
 	
@@ -20,6 +23,7 @@ public class Maze {
 	 * and invalidates the route until a route has been added.
 	 */
 	public Maze() {
+		this.mazeId = ++numMazeDeclarations;
 		this.isValid = false;
 	}
 	
@@ -62,7 +66,10 @@ public class Maze {
 	}
 	
 	/**
-	 *TODO
+	 * Generates an arbitrary MazeRoute through the Maze starting at the specified
+	 * MazeCell and moving to adjoining MazeCells. If the MazeCell is a dead end or
+	 * the MazeCell has already been visited, the routine exits and the MazeRoute is
+	 * returned.
 	 * 
 	 * @param initialCell - the starting MazeCell of the route to be created
 	 * @return a MazeRoute of one possible path through the Maze
@@ -70,8 +77,8 @@ public class Maze {
 	 */
 	public MazeRoute routeFirst(MazeCell initialCell) throws UninitializedObjectException {
 		validityCheck();
-		List<MazeCell> path = routePath(initialCell, new LinkedList<MazeCell>());
 		MazeRoute route = new MazeRoute();
+		List<MazeCell> path = routePath(initialCell, new LinkedList<MazeCell>());
 		route.addCells(path);
 		return route;
 	}
@@ -88,7 +95,7 @@ public class Maze {
 	}
 	
 	/**
-	 * Recursively generates a route until a the mouse hits a dead end or
+	 * Recursively generates a route until the mouse hits a dead end or
 	 * visits the same sell twice.
 	 * 
 	 * @param cell - the MazeCell that the mouse is currently in
@@ -98,8 +105,9 @@ public class Maze {
 	 */
 	private List<MazeCell> routePath(MazeCell cell, List<MazeCell> path)
 			throws UninitializedObjectException {
-		if(cell.isDeadEnd() || path.contains(cell)) { // if dead end or seen before
-			path.add(cell);
+		// base case : if cell is a dead cell, has been seen before, or isn't in the Maze
+		if(cell.isDeadEnd() || path.contains(cell) || !cells.contains(cell)) {
+			path.add(cell);	
 		} else { // if never-before-seen cell
 			path.add(cell);
 			MazeCell passages[] = (MazeCell[])cell.connectedCells().toArray();
@@ -110,9 +118,56 @@ public class Maze {
 		return path;
 	}
 	
+	/**
+	 * Generates a unique String for a specified MazeCell containing information
+	 * on its adjoining cells and the time to reach each of them. 
+	 * 
+	 * @param cell - the MazeCell to create a String for
+	 * @return a String contain information of the MazeCell and its adjoining cells
+	 * @throws UninitializedObjectException if the MazeCell is invalid
+	 */
+	private String buildCellString(MazeCell cell) throws UninitializedObjectException {
+		StringBuilder builder = new StringBuilder();
+		builder.append(cell);
+		if(cell.isDeadEnd()) {
+			builder.append("\t->\tdead end");
+		} else {
+			Iterator<MazeCell> neighborIterate = cell.connectedCells().iterator();
+			MazeCell neighbor = neighborIterate.next();
+			Integer time = cell.passageTimeTo(neighbor);
+			builder.append("\t-" + time + "->\t" + neighbor + "\n");
+			while(neighborIterate.hasNext()) {
+				neighbor = neighborIterate.next();
+				time = cell.passageTimeTo(neighbor);
+				builder.append("\t\t\t-" + time + "->\t" + neighbor + "\n");
+			}
+		}
+		return builder.toString();
+	}
+	
+	/**
+	 * Creates a unique String for each Maze instance.
+	 * 
+	 * @return a String representation of the Maze
+	 */
 	@Override
 	public String toString() {
-		//TODO
-		return "";
+		// build a String to show the entire Maze
+		StringBuilder builder = new StringBuilder();
+		builder.append("Maze ID" + mazeId + ":\n");
+		try {
+			validityCheck();
+			if(cells.isEmpty()) {
+				builder.append("empty");
+			} else {
+				// add each MazeCell in the Maze to the StringBuilder
+				for(MazeCell cell : cells) {
+					builder.append(buildCellString(cell));
+				}
+			}
+			return builder.toString();
+		} catch (UninitializedObjectException e) {
+			return "Uninitialized Maze";
+		}
 	}
 }

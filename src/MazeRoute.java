@@ -129,6 +129,7 @@ public class MazeRoute {
 		// add the first MazeCell in the path
 		MazeCell cell = routeIterate.next();
 		builder.append(cell);
+		// add the remaining MazeCells
 		while(routeIterate.hasNext()) {
 			cell = routeIterate.next();
 			builder.append(" -> ");
@@ -141,7 +142,6 @@ public class MazeRoute {
 	 * Creates a unique String for each MazeRoute instance.
 	 * 
 	 * @return a String representation of the MazeRoute
-	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	@Override
 	public String toString() {
