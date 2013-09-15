@@ -52,26 +52,30 @@ public class MazeRouteTest {
 		startTwo = new MazeCell();
 		startTwo.addPassages(map);
 		// create a route through this "world map"
-		// routeOne is a passable route
-		route = new LinkedList<MazeCell>();
-		route.add(startOne);
-		route.add(middleOne);
-		route.add(endOne);
-		routeOne = new MazeRoute();
-		routeOne.addCells(route);
-		// routeTwo is non-existent route
-		List<MazeCell> list = new LinkedList<MazeCell>();
-		list.add(startOne);
-		list.add(startTwo);
-		routeTwo = new MazeRoute();
-		routeTwo.addCells(list);
-		// routeThree is an impassable route
-		list = new LinkedList<MazeCell>();
-		list.add(startTwo);
-		list.add(middleOne);
-		list.add(endTwo);
-		routeThree = new MazeRoute();
-		routeThree.addCells(list);
+		try {
+			// routeOne is a passable route
+			route = new LinkedList<MazeCell>();
+			route.add(startOne);
+			route.add(middleOne);
+			route.add(endOne);
+			routeOne = new MazeRoute();
+			routeOne.addCells(route);
+			// routeTwo is non-existent route
+			List<MazeCell> list = new LinkedList<MazeCell>();
+			list.add(startOne);
+			list.add(startTwo);
+			routeTwo = new MazeRoute();
+			routeTwo.addCells(list);
+			// routeThree is an impassable route
+			list = new LinkedList<MazeCell>();
+			list.add(startTwo);
+			list.add(middleOne);
+			list.add(endTwo);
+			routeThree = new MazeRoute();
+			routeThree.addCells(list);
+		} catch(UninitializedObjectException e) {
+			fail("Initialization of MazeRoutes failed");
+		}
 	}
 	
 	/**
@@ -79,24 +83,20 @@ public class MazeRouteTest {
 	 */
 	@Test
 	public void testAddCellsAndIsValid() {
-		// test with null List
-		MazeRoute test = new MazeRoute();
-		assertFalse("MazeRoute should be initialized to be invalid", test.isValid());
-		assertFalse("Null List should not be added as a route", test.addCells(null));
-		// test adding a non-null List
-		assertTrue("Did not properly add a route List", test.addCells(new LinkedList<MazeCell>()));
-		assertTrue("MazeRoute should be valid after adding a route", test.isValid());
-		// test adding a List to an already valid route
-		assertFalse("MazeRoute should not be able to add additional cells to a valid route", test.addCells(new LinkedList<MazeCell>()));
-		assertTrue("MazeRoute should be valid even if user attempts to add additional cells to a valid route", test.isValid());
-		// test adding invalid MazeCell
-		List<MazeCell> list = new LinkedList<MazeCell>();
-		list.add(startOne);
-		list.add(new MazeCell());
-		list.add(endOne);
-		test = new MazeRoute();
-		assertFalse("MazeRoute added a route with invalid MazeCell", test.addCells(list));
-		assertFalse("MazeRoute should not be valid if invalid MazeCell was added", test.isValid());
+		try {
+			// test with null List
+			MazeRoute test = new MazeRoute();
+			assertFalse("MazeRoute should be initialized to be invalid", test.isValid());
+			assertFalse("Null List should not be added as a route", test.addCells(null));
+			// test adding a non-null List
+			assertTrue("Did not properly add a route List", test.addCells(new LinkedList<MazeCell>()));
+			assertTrue("MazeRoute should be valid after adding a route", test.isValid());
+			// test adding a List to an already valid route
+			assertFalse("MazeRoute should not be able to add additional cells to a valid route", test.addCells(new LinkedList<MazeCell>()));
+			assertTrue("MazeRoute should be valid even if user attempts to add additional cells to a valid route", test.isValid());
+		} catch(UninitializedObjectException e) {
+			fail("addCells() method generated an UninitizedObjectException incorrectly");
+		}
 	}
 	
 	/**
@@ -142,6 +142,19 @@ public class MazeRouteTest {
 		assertFalse("MazeRoute does not create a String", routeOne.toString().equals(""));
 		// test MazeRoute for unique identification String
 		assertFalse("MazeRoute does not create a unique identification String", routeOne.toString().equals(routeTwo.toString()));
+		// test for no passage
+		assertTrue("MazeRoute String does not indicate that there is no passage", routeThree.toString().contains("no passage"));
+		// test for invalid MazeRoute String
+		MazeRoute test = new MazeRoute();
+		assertTrue("MazeRoute does not generate the correct message when invalid", test.toString().equals("Uninitialized MazeRoute"));
+		// test for an empty route
+		try {
+			test.addCells(new LinkedList<MazeCell>());
+			assertTrue("MazeRoute String does not indicate that the route is empty", test.toString().contains("empty"));
+		} catch(UninitializedObjectException e) {
+			fail("MazeRoute generated an UninitializedObjectException incorrectly");
+		}
+		
 	}
 	
 	/**
@@ -150,6 +163,18 @@ public class MazeRouteTest {
 	@Test
 	public void testExceptionThrowing() {
 		MazeRoute test = new MazeRoute();
+		// addCells() test when adding an invalid MazeCell
+		try {
+			List<MazeCell> list = new LinkedList<MazeCell>();
+			list.add(startOne);
+			list.add(new MazeCell());
+			list.add(endOne);
+			test = new MazeRoute();
+			test.addCells(list);
+			fail("addCells() method should have thrown an UninitializedObjectException");
+		} catch(UninitializedObjectException e) {
+			// test passed because exception was thrown
+		}
 		// getCells() test
 		try {
 			test.getCells();

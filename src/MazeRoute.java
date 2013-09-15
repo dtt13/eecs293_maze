@@ -33,7 +33,7 @@ public class MazeRoute {
 	 * @return true if the route was added, false if the route was not added
 	 * @throws UninitializedObjectException if any MazeCell being added to the MazeRoute is invalid
 	 */
-	public boolean addCells(List<MazeCell> route) throws UninitializedObjectException { //TODO McCabe?
+	public boolean addCells(List<MazeCell> route) throws UninitializedObjectException {
 		if(!isValid && route != null){ // copy the route if the route is already invalid
 			// copies the List to avoid inadvertent changes
 			this.route = new LinkedList<MazeCell>();
@@ -84,23 +84,24 @@ public class MazeRoute {
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	public Integer travelTime() throws UninitializedObjectException { //TODO try with a list iterator
+	public Integer travelTime() throws UninitializedObjectException {
 		validityCheck();
-		// add up the travel time from one MazeCell to the next
-//		ListIterator<MazeCell> routeIterate = route.listIterator();
-		MazeCell currentCell;
-		MazeCell prevCell = route.get(0);
 		int totalTime = 0;
-		for(int i = 1; i < route.size(); i++) {
-			currentCell = route.get(i);
-			Integer time = prevCell.passageTimeTo(currentCell);
-			if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
-				totalTime += time;
-			} else { // return impassable if one passage is impassable
-				return new Integer(MazeCell.IMPASSABLE);
+		if(!route.isEmpty()) {
+			// add up the travel time from one MazeCell to the next
+			MazeCell currentCell;
+			MazeCell prevCell = route.get(0);
+			for(int i = 1; i < route.size(); i++) {
+				currentCell = route.get(i);
+				Integer time = prevCell.passageTimeTo(currentCell);
+				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
+					totalTime += time;
+				} else { // return impassable if one passage is impassable
+					return new Integer(MazeCell.IMPASSABLE);
+				}
+				// increment the prevCell for the next iteration
+				prevCell = currentCell;
 			}
-			// increment the prevCell for the next iteration
-			prevCell = currentCell;
 		}
 		return new Integer(totalTime);
 	}
@@ -157,7 +158,7 @@ public class MazeRoute {
 				builder.append(buildRouteString());
 			}
 			return builder.toString();
-		} catch (UninitializedObjectException e) {
+		} catch(UninitializedObjectException e) {
 			return "Uninitialized MazeRoute";
 		}
 	}

@@ -132,8 +132,8 @@ public class MazeCell {
 	}
 
 	/**
-	 * Determines if this MazeCell is a dead end meaning that there are no passable passages
-	 * out of this cell.
+	 * Determines if this MazeCell is a dead end meaning that there are no
+	 * passable passages out of this cell.
 	 * 
 	 * @return true if MazeCell is a dead end, false otherwise
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
@@ -154,15 +154,14 @@ public class MazeCell {
 	}
 	
 	/**
-	 * Generates a unique hash code integer for each MazeCell. The hash code for MazeCells
-	 * with identical passages is the same.
+	 * Generates a unique hash code integer for each instance of the MazeCell class.
 	 * 
 	 * @return a hash code for the MazeCell object
 	 */
 	@Override
 	public int hashCode() {
-		// use the Map's hashCode since identical Maps imply identical cells
-		return passages.hashCode();
+		// use the MazeCell's Id since each instance will have a unique number
+		return mazeCellId;
 	}
 
 	/**

@@ -36,7 +36,7 @@ public class Maze {
 	 * @return true if the cells were added, false if the cells were not added
 	 * @throws UninitializedObjectException if any MazeCell being added to the Maze is invalid
 	 */
-	public boolean addCells(Set<MazeCell> cells) throws UninitializedObjectException { //TODO McCabe?
+	public boolean addCells(Set<MazeCell> cells) throws UninitializedObjectException {
 		if(!isValid && cells != null){ // copy the cells if the maze is already invalid
 			// copies the List to avoid inadvertent changes
 			this.cells = new HashSet<MazeCell>();
