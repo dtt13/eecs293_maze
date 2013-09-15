@@ -1,11 +1,10 @@
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 /**
- * The MazeRoute class represents a collection of MazeCells that make up
+ * The Maze class represents a collection of MazeCells that make up
  * the maze map.
  * 
  * @author Derrick Tilsner dtt13
@@ -110,9 +109,9 @@ public class Maze {
 			path.add(cell);	
 		} else { // if never-before-seen cell
 			path.add(cell);
-			MazeCell passages[] = (MazeCell[])cell.connectedCells().toArray();
+			Object passages[] = cell.connectedCells().toArray();
 			int arbitraryPathIndex = (int)(passages.length * Math.random());
-			MazeCell nextCell = passages[arbitraryPathIndex];
+			MazeCell nextCell = (MazeCell)passages[arbitraryPathIndex];
 			path = routePath(nextCell, path);
 		}
 		return path;
@@ -128,18 +127,12 @@ public class Maze {
 	 */
 	private String buildCellString(MazeCell cell) throws UninitializedObjectException {
 		StringBuilder builder = new StringBuilder();
-		builder.append(cell);
 		if(cell.isDeadEnd()) {
-			builder.append("\t->\tdead end");
+			builder.append(cell + " -> dead end\n");
 		} else {
-			Iterator<MazeCell> neighborIterate = cell.connectedCells().iterator();
-			MazeCell neighbor = neighborIterate.next();
-			Integer time = cell.passageTimeTo(neighbor);
-			builder.append("\t-" + time + "->\t" + neighbor + "\n");
-			while(neighborIterate.hasNext()) {
-				neighbor = neighborIterate.next();
-				time = cell.passageTimeTo(neighbor);
-				builder.append("\t\t\t-" + time + "->\t" + neighbor + "\n");
+			for(MazeCell neighbor : cell.connectedCells()) {
+				Integer time = cell.passageTimeTo(neighbor);
+				builder.append(cell + " -" + time + "-> " + neighbor + "\n");
 			}
 		}
 		return builder.toString();
@@ -154,7 +147,7 @@ public class Maze {
 	public String toString() {
 		// build a String to show the entire Maze
 		StringBuilder builder = new StringBuilder();
-		builder.append("Maze ID" + mazeId + ":\n");
+		builder.append("Maze ID " + mazeId + ":\n");
 		try {
 			validityCheck();
 			if(cells.isEmpty()) {

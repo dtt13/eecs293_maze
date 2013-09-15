@@ -134,7 +134,7 @@ public class MazeRouteTest {
 	}
 	
 	/**
-	 * Tests the toString() method for unique identification Strings assuming valid MazeRoute.
+	 * Tests the toString() method for unique identification Strings.
 	 */
 	@Test
 	public void testToString() {
@@ -154,11 +154,10 @@ public class MazeRouteTest {
 		} catch(UninitializedObjectException e) {
 			fail("MazeRoute generated an UninitializedObjectException incorrectly");
 		}
-		
 	}
 	
 	/**
-	 * Tests all methods the should throw an UninitializedObjectException when the MazeRoute is invalid.
+	 * Tests all methods that should throw an UninitializedObjectException when the MazeRoute is invalid.
 	 */
 	@Test
 	public void testExceptionThrowing() {
@@ -169,7 +168,6 @@ public class MazeRouteTest {
 			list.add(startOne);
 			list.add(new MazeCell());
 			list.add(endOne);
-			test = new MazeRoute();
 			test.addCells(list);
 			fail("addCells() method should have thrown an UninitializedObjectException");
 		} catch(UninitializedObjectException e) {

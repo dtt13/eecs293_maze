@@ -93,7 +93,7 @@ public class MazeCellTest {
 	 * Tests the hashCode() method for multiple MazeCell objects.
 	 */
 	@Test
-	public void testHashCode() { //TODO test for loop
+	public void testHashCode() {
 		// test it two MazeCells are different
 		assertFalse("hashCode() of different MazeCells should not be the same", srcOne.hashCode() == srcFour.hashCode());
 		// test when MazeCells reference each other
