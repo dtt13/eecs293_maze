@@ -110,7 +110,8 @@ public class Maze {
 		} else { // if never-before-seen cell
 			path.add(cell);
 			Object passages[] = cell.connectedCells().toArray();
-			int arbitraryPathIndex = (int)(passages.length * Math.random());
+//			int arbitraryPathIndex = (int)(passages.length * Math.random());
+			int arbitraryPathIndex = 0;
 			MazeCell nextCell = (MazeCell)passages[arbitraryPathIndex];
 			path = routePath(nextCell, path);
 		}
