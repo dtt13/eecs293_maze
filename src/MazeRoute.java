@@ -106,6 +106,11 @@ public class MazeRoute {
 		return new Integer(totalTime);
 	}
 	
+	public Integer travelTimeRandom() throws UninitializedObjectException {
+		//TODO introduce random travel time
+		return 22;
+	}
+	
 	/**
 	 * Generates an exception if MazeRoute is invalid.
 	 * 
@@ -145,7 +150,7 @@ public class MazeRoute {
 	 * @return a String representation of the MazeRoute
 	 */
 	@Override
-	public String toString() {
+	public String toString() { //TODO use <>?
 		// build a String to show the path
 		StringBuilder builder = new StringBuilder();
 		builder.append("MazeRoute ID " + mazeRouteId + ": ");

@@ -77,7 +77,15 @@ public class Maze {
 	public MazeRoute routeFirst(MazeCell initialCell) throws UninitializedObjectException {
 		validityCheck();
 		MazeRoute route = new MazeRoute();
-		List<MazeCell> path = routePath(initialCell, new LinkedList<MazeCell>());
+		List<MazeCell> path = routeFirstPath(initialCell, null);
+		route.addCells(path);
+		return route;
+	}
+	
+	public MazeRoute routeRandom(MazeCell initialCell) throws UninitializedObjectException {
+		validityCheck();
+		MazeRoute route = new MazeRoute();
+		List<MazeCell> path = routeRandomPath(initialCell, null);
 		route.addCells(path);
 		return route;
 	}
@@ -94,26 +102,53 @@ public class Maze {
 	}
 	
 	/**
-	 * Recursively generates a route until the mouse hits a dead end or
-	 * visits the same sell twice.
+	 * Recursively generates a route until the mouse hits a dead end, leaves
+	 * the maze, or visits the same sell twice.
 	 * 
 	 * @param cell - the MazeCell that the mouse is currently in
 	 * @param path - a List of MazeCells that mouse has previously visited
 	 * @return a List contain the new path
 	 * @throws UninitializedObjectException - only
 	 */
-	private List<MazeCell> routePath(MazeCell cell, List<MazeCell> path)
+	private List<MazeCell> routeFirstPath(MazeCell cell, List<MazeCell> path)
 			throws UninitializedObjectException {
-		// base case : if cell is a dead cell, has been seen before, or isn't in the Maze
-		if(cell.isDeadEnd() || path.contains(cell) || !cells.contains(cell)) {
+		// initialize path if null TODO McCabe?
+		if(path == null) {
+			path = new LinkedList<MazeCell>();
+		}
+		// base cases : if cell is a dead cell, has been seen before, or isn't in the Maze
+		if(!cells.contains(cell)){
+			path = new LinkedList<MazeCell>();
+		} else if(cell.isDeadEnd() || path.contains(cell)) {
 			path.add(cell);	
 		} else { // if never-before-seen cell
 			path.add(cell);
-			Object passages[] = cell.connectedCells().toArray();
-//			int arbitraryPathIndex = (int)(passages.length * Math.random());
+			Object passages[] = cell.connectedCells().toArray();// TODO better way to do this?
 			int arbitraryPathIndex = 0;
 			MazeCell nextCell = (MazeCell)passages[arbitraryPathIndex];
-			path = routePath(nextCell, path);
+			path = routeFirstPath(nextCell, path);
+		}
+		return path;
+	}
+	
+	//
+	private List<MazeCell> routeRandomPath(MazeCell cell, List<MazeCell> path)
+			throws UninitializedObjectException {
+		// initialize path if null TODO McCabe?
+		if(path == null) {
+			path = new LinkedList<MazeCell>();
+		}
+		// base cases : if cell is a dead cell, has been seen before, or isn't in the Maze
+		if(!cells.contains(cell)){
+			path = new LinkedList<MazeCell>();
+		} else if(cell.isDeadEnd() || path.contains(cell)) {
+			path.add(cell);	
+		} else { // if never-before-seen cell
+			path.add(cell);
+			Object passages[] = cell.connectedCells().toArray(); //TODO better way to do this?
+			int arbitraryPathIndex = (int)(passages.length * Math.random());
+			MazeCell nextCell = (MazeCell)passages[arbitraryPathIndex];
+			path = routeFirstPath(nextCell, path);
 		}
 		return path;
 	}
@@ -145,7 +180,7 @@ public class Maze {
 	 * @return a String representation of the Maze
 	 */
 	@Override
-	public String toString() {
+	public String toString() { //TODO use <>?
 		// build a String to show the entire Maze
 		StringBuilder builder = new StringBuilder();
 		builder.append("Maze ID " + mazeId + ":\n");

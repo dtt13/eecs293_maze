@@ -138,6 +138,7 @@ public class MazeRouteTest {
 	 */
 	@Test
 	public void testToString() {
+		System.out.println(routeOne);
 		// test String is not empty
 		assertFalse("MazeRoute does not create a String", routeOne.toString().equals(""));
 		// test MazeRoute for unique identification String

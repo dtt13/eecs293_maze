@@ -12,9 +12,17 @@ import java.util.Set;
 public class MazeCell {
 	// class constants
 	/**
-	 * Represents an impassable passage
+	 * Represents an impassable passage.
 	 */
 	public final static int IMPASSABLE = Integer.MAX_VALUE;
+	
+	/**
+	 * Represents the status codes that Status can express.
+	 */
+	public static enum Code { //TODO where does this go?!
+		OK, ALREADY_VALID, INVALID_TIME
+	}
+	
 	// private class variables
 	private static int numMazeCellDeclarations = 0;
 	private int mazeCellId; // used to differentiate MazeCell objects
@@ -39,17 +47,23 @@ public class MazeCell {
 	 * required to reach that cell
 	 * @return true if the passages were added, false if the passages were not added
 	 */
-	public boolean addPassages(Map<MazeCell, Integer> passages) {
+	public void addPassages(Map<MazeCell, Integer> passages, Status status) { //TODO McCabe!!!!
 		if (!isValid && passages != null) { // copy the passages if the cell is invalid
 			// copies the Map to avoid inadvertent changes
 			this.passages = new HashMap<MazeCell, Integer>();
 			for(MazeCell cell : passages.keySet()) {
-				this.passages.put(cell, passages.get(cell));
+				if(passages.get(cell) > 0) { // passage time is valid
+					this.passages.put(cell, passages.get(cell));
+				} else {
+					this.passages = null;
+					status.set(Code.INVALID_TIME);
+					return;
+				}
 			}
 			isValid = true;
-			return true;
+			status.set(Code.OK);
 		} else { // don't copy the passages if the cell is already valid or the input was null
-			return false;
+			status.set(Code.ALREADY_VALID);
 		}
 	}
 
@@ -170,10 +184,43 @@ public class MazeCell {
 	 * @return a String representation of the MazeCell
 	 */
 	@Override
-	public String toString() {
+	public String toString() { //TODO use <>?
 		if(!isValid) {
 			return "Uninitialized MazeCell";
 		}
 		return "MazeCell ID " + mazeCellId;
+	}
+	
+	
+	//TODO javadoc
+	public class Status {
+		// private class variables
+		private Code code;
+		
+		public Status() {
+			this.code = Code.OK;
+		}
+		
+		public String getMessage() {
+			switch(code) {
+			case OK:
+				return "";
+			case ALREADY_VALID:
+				return "The MazeCell is already valid and the passages cannot be updated";
+			case INVALID_TIME:
+				return "A non-positive travel time is invalid";
+			default:
+				//do something
+				return "Error";
+			}
+		}
+		
+		public void set(Code code) {
+			this.code = code;
+		}
+		
+		public Code get() {
+			return code;
+		}
 	}
 }
