@@ -16,13 +16,6 @@ public class MazeCell {
 	 */
 	public final static int IMPASSABLE = Integer.MAX_VALUE;
 	
-	/**
-	 * Represents the status codes that Status can express.
-	 */
-	public static enum Code { //TODO where does this go?!
-		OK, ALREADY_VALID, INVALID_TIME
-	}
-	
 	// private class variables
 	private static int numMazeCellDeclarations = 0;
 	private int mazeCellId; // used to differentiate MazeCell objects
@@ -47,25 +40,22 @@ public class MazeCell {
 	 * required to reach that cell
 	 * @return true if the passages were added, false if the passages were not added
 	 */
-	public void addPassages(Map<MazeCell, Integer> passages, Status status) { //TODO McCabe!!!!
-		if (!isValid && passages != null) { // copy the passages if the cell is invalid
-			// copies the Map to avoid inadvertent changes
-			this.passages = new HashMap<MazeCell, Integer>();
-			for(MazeCell cell : passages.keySet()) {
-				if(passages.get(cell) > 0) { // passage time is valid
-					this.passages.put(cell, passages.get(cell));
-				} else {
-					this.passages = null;
-					status.set(Code.INVALID_TIME);
-					return;
-				}
+	public void addPassages(Map<MazeCell, Integer> passages, Status status) {
+		if(passages == null) { // null input is not accepted
+			status.set(Status.Code.INPUT_NULL);
+		} else if (!isValid) { // copy the passages if the cell is invalid
+			boolean isCopied = copyPassages(passages);
+			if(isCopied) {
+				isValid = true;
+				status.set(Status.Code.OK);
+			} else {
+				status.set(Status.Code.INVALID_TIME);
 			}
-			isValid = true;
-			status.set(Code.OK);
 		} else { // don't copy the passages if the cell is already valid or the input was null
-			status.set(Code.ALREADY_VALID);
+			status.set(Status.Code.ALREADY_VALID);
 		}
 	}
+
 
 	/**
 	 * Checks if the MazeCell has been validated. A MazeCell is considered
@@ -157,6 +147,29 @@ public class MazeCell {
 	}
 	
 	/**
+	 * Copies the passages from the input Map to the MazeCell's Map. If the passage time is
+	 * invalid (non-positive) for any mapping, the copying is terminated immediately and
+	 * the MazeCell's Map is not updated.
+	 * 
+	 * @param passages - a Map of MazeCells to Integer passage times that will be copied
+	 * @return true if the passages were completely copied; false otherwise
+	 */
+	private boolean copyPassages(Map<MazeCell, Integer> passages) {
+		// copies the Map to avoid inadvertent changes
+		this.passages = new HashMap<MazeCell, Integer>();
+		for(MazeCell cell : passages.keySet()) {
+			if(passages.get(cell) > 0) { // passage time is valid
+				this.passages.put(cell, passages.get(cell));
+			} else {
+				this.passages = null;
+				return false;
+			}
+		}
+		// all passage times were valid
+		return true;
+	}
+
+	/**
 	 * Generates an exception if the MazeCell is invalid.
 	 * 
 	 * @throws UninitializedObjectException only thrown if MazeCell is invalid
@@ -184,37 +197,64 @@ public class MazeCell {
 	 * @return a String representation of the MazeCell
 	 */
 	@Override
-	public String toString() { //TODO use <>?
+	public String toString() {
 		if(!isValid) {
 			return "Uninitialized MazeCell";
 		}
-		return "MazeCell ID " + mazeCellId;
+		return "<MazeCell ID " + mazeCellId + ">";
 	}
 	
-	
-	//TODO javadoc
-	public class Status {
+	/**
+	 * 
+	 * 
+	 * @author Derrick Tilsner dtt13
+	 *
+	 */
+	public static class Status {
+		
+		/**
+		 * Represents the status codes that Status can express.
+		 */
+		public static enum Code {
+			OK, ALREADY_VALID, INVALID_TIME, INPUT_NULL
+		}
+		
 		// private class variables
 		private Code code;
 		
+		/**
+		 * Constructor for the Status class which initializes the current
+		 * status to Code.OK.
+		 */
 		public Status() {
 			this.code = Code.OK;
 		}
 		
-		public String getMessage() {
+		/**
+		 * Generates a helpful message based on a specific status code.
+		 * 
+		 * @return a String message containing details about the status code
+		 */
+		public String getMessage(){
 			switch(code) {
 			case OK:
-				return "";
+				return "The MazeCell is operating normally";
 			case ALREADY_VALID:
 				return "The MazeCell is already valid and the passages cannot be updated";
 			case INVALID_TIME:
 				return "A non-positive travel time is invalid";
+			case INPUT_NULL:
+				return "A null Map is an unacceptable parameter";
 			default:
-				//do something
-				return "Error";
+				return "Error : Cannot find status code";
 			}
 		}
 		
+		/**
+		 * 
+		 * 
+		 * @param code - the status code to be set
+		 */
 		public void set(Code code) {
 			this.code = code;
 		}
