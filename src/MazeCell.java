@@ -205,7 +205,8 @@ public class MazeCell {
 	}
 	
 	/**
-	 * 
+	 * The Status class represents a status code that is returned after
+	 * adding passages to the MazeCell.
 	 * 
 	 * @author Derrick Tilsner dtt13
 	 *
@@ -251,7 +252,7 @@ public class MazeCell {
 		}
 		
 		/**
-		 * 
+		 * Sets the status code to the specified value.
 		 * 
 		 * @param code - the status code to be set
 		 */
@@ -259,6 +260,11 @@ public class MazeCell {
 			this.code = code;
 		}
 		
+		/**
+		 * Retrieves the status code.
+		 * 
+		 * @return the current status code
+		 */
 		public Code get() {
 			return code;
 		}

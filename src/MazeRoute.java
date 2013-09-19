@@ -1,6 +1,7 @@
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 
 /**
  * The MazeRoute class represents a single path in a maze composed of a list of MazeCells.
@@ -106,9 +107,36 @@ public class MazeRoute {
 		return new Integer(totalTime);
 	}
 	
+	/**
+	 * Calculates the time required to traverse the MazeRoute where each passage
+	 * may take between 1 and pre-specified travel time inclusively. The travel
+	 * time will be equal to MazeCell.IMPASSABLE if the route is impassable or
+	 * there is no route between two consecutive MazeCells.
+	 * 
+	 * @return the time needed to travel the MazeRoute
+	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
+	 */
 	public Integer travelTimeRandom() throws UninitializedObjectException {
-		//TODO introduce random travel time
-		return 22;
+		validityCheck();
+		int totalTime = 0;
+		if(!route.isEmpty()) {
+			// add up the travel time from one MazeCell to the next
+			MazeCell currentCell;
+			MazeCell prevCell = route.get(0);
+			for(int i = 1; i < route.size(); i++) {
+				currentCell = route.get(i);
+				Integer time = prevCell.passageTimeTo(currentCell);
+				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
+					Random randomTime = new Random();
+					totalTime += randomTime.nextInt(time) + 1; // randomize between 1 and time
+				} else { // return impassable if one passage is impassable
+					return new Integer(MazeCell.IMPASSABLE);
+				}
+				// increment the prevCell for the next iteration
+				prevCell = currentCell;
+			}
+		}
+		return new Integer(totalTime);
 	}
 	
 	/**
@@ -150,10 +178,10 @@ public class MazeRoute {
 	 * @return a String representation of the MazeRoute
 	 */
 	@Override
-	public String toString() { //TODO use <>?
+	public String toString() {
 		// build a String to show the path
 		StringBuilder builder = new StringBuilder();
-		builder.append("MazeRoute ID " + mazeRouteId + ": ");
+		builder.append("<MazeRoute ID " + mazeRouteId + ">: ");
 		try {
 			if(travelTime() == MazeCell.IMPASSABLE) {
 				builder.append("no passage");
