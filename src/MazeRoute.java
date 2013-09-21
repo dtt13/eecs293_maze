@@ -85,7 +85,7 @@ public class MazeRoute {
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	public Integer travelTime() throws UninitializedObjectException {
+	public Integer travelTime() throws UninitializedObjectException { //TODO consider iterator
 		validityCheck();
 		int totalTime = 0;
 		if(!route.isEmpty()) {
@@ -116,7 +116,7 @@ public class MazeRoute {
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	public Integer travelTimeRandom() throws UninitializedObjectException {
+	public Integer travelTimeRandom() throws UninitializedObjectException { //TODO consider iterator
 		validityCheck();
 		int totalTime = 0;
 		if(!route.isEmpty()) {

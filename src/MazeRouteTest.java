@@ -35,22 +35,28 @@ public class MazeRouteTest {
 	public void initializeCellsAndRoutes() {
 		// create a "world map" of passages
 		endOne = new MazeCell();
-		endOne.addPassages(new HashMap<MazeCell, Integer>());
+		endOne.addPassages(new HashMap<MazeCell, Integer>(), new MazeCell.Status());
 		endTwo = new MazeCell();
-		endTwo.addPassages(new HashMap<MazeCell, Integer>());
+		endTwo.addPassages(new HashMap<MazeCell, Integer>(), new MazeCell.Status());
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
-		map.put(endOne, new Integer(1));
-		map.put(endTwo, new Integer(2));
+		map.put(endOne, new Integer(2));
+		map.put(endTwo, new Integer(3));
 		middleOne = new MazeCell();
-		middleOne.addPassages(map);
+		middleOne.addPassages(map, new MazeCell.Status());
 		map = new HashMap<MazeCell, Integer>();
 		map.put(middleOne, new Integer(1));
 		startOne= new MazeCell();
-		startOne.addPassages(map);
+		startOne.addPassages(map, new MazeCell.Status());
 		map = new HashMap<MazeCell, Integer>();
-		map.put(middleOne, new Integer(Integer.MAX_VALUE));
+		map.put(middleOne, new Integer(MazeCell.IMPASSABLE));
 		startTwo = new MazeCell();
-		startTwo.addPassages(map);
+		startTwo.addPassages(map, new MazeCell.Status());
+		/*
+		 * startOne -1-> middleOne
+		 * startTwo -//-> middleOne
+		 * middleOne -2-> endOne
+		 * middleOne -3-> endTwo
+		 */
 		// create a route through this "world map"
 		try {
 			// routeOne is a passable route
@@ -92,8 +98,10 @@ public class MazeRouteTest {
 			assertTrue("Did not properly add a route List", test.addCells(new LinkedList<MazeCell>()));
 			assertTrue("MazeRoute should be valid after adding a route", test.isValid());
 			// test adding a List to an already valid route
-			assertFalse("MazeRoute should not be able to add additional cells to a valid route", test.addCells(new LinkedList<MazeCell>()));
-			assertTrue("MazeRoute should be valid even if user attempts to add additional cells to a valid route", test.isValid());
+			assertFalse("MazeRoute should not be able to add additional cells to a valid route",
+					test.addCells(new LinkedList<MazeCell>()));
+			assertTrue("MazeRoute should be valid even if user attempts to add additional cells to a valid route",
+					test.isValid());
 		} catch(UninitializedObjectException e) {
 			fail("addCells() method generated an UninitizedObjectException incorrectly");
 		}
@@ -108,9 +116,11 @@ public class MazeRouteTest {
 			// test with an empty route
 			MazeRoute test = new MazeRoute();
 			test.addCells(new LinkedList<MazeCell>());
-			assertEquals("getCells() method does not return the correct route List", new LinkedList<MazeCell>(), test.getCells());
+			assertEquals("getCells() method does not return the correct route List",
+					new LinkedList<MazeCell>(), test.getCells());
 			// test with a non-empty route
-			assertEquals("getCells() method does not return the correct route List", route, routeOne.getCells());
+			assertEquals("getCells() method does not return the correct route List",
+					route, routeOne.getCells());
 		} catch(UninitializedObjectException e) {
 			fail("getCells() method generated an UninitializedObjectException incorrectly");
 		}
@@ -123,13 +133,37 @@ public class MazeRouteTest {
 	public void testTravelTime() {
 		try {
 			// test route with no passage
-			assertEquals("travelTime() method does not return the correct travel time when there is no passage", new Integer(Integer.MAX_VALUE), routeTwo.travelTime());
+			assertEquals("travelTime() method does not return the correct travel time when there is no passage",
+					new Integer(MazeCell.IMPASSABLE), routeTwo.travelTime());
 			// test route with impassable passage
-			assertEquals("travelTime() method does not return the correct travel time when there is an impassable passage", new Integer(Integer.MAX_VALUE), routeThree.travelTime());
+			assertEquals("travelTime() method does not return the correct travel time when there is an impassable passage",
+					new Integer(MazeCell.IMPASSABLE), routeThree.travelTime());
 			// test route with all passable passages
-			assertEquals("travelTime() method does not return the correct travel time when all passages are passable", new Integer(2), routeOne.travelTime());
+			assertEquals("travelTime() method does not return the correct travel time when all passages are passable",
+					new Integer(3), routeOne.travelTime());
 		} catch(UninitializedObjectException e) {
 			fail("travelTime() method generated an UninitializedObjectException incorrectly");
+		}
+	}
+	
+	/**
+	 * Tests the travelTimeRandom() method assuming valid MazeRoute.
+	 */
+	@Test
+	public void testTravelTimeRandom() {
+		try {
+			// test route with no passage
+			assertEquals("travelTimeRandom() method does not return the correct travel time when there is no passage",
+					new Integer(MazeCell.IMPASSABLE), routeTwo.travelTimeRandom());
+			// test route with impassable passage
+			assertEquals("travelTimeRandom() method does not return the correct travel time when there is an impassable passage",
+					new Integer(MazeCell.IMPASSABLE), routeThree.travelTimeRandom());
+			// test route with all passable passages
+			int randomTime = routeOne.travelTimeRandom();
+			assertTrue("travelTimeRandom() method does not return a valid travel time when all passages are passable",
+					(randomTime == 2) || ( randomTime == 3));
+		} catch(UninitializedObjectException e) {
+			fail("travelTimeRandom() method generated an UninitializedObjectException incorrectly");
 		}
 	}
 	
@@ -138,20 +172,23 @@ public class MazeRouteTest {
 	 */
 	@Test
 	public void testToString() {
-		System.out.println(routeOne);
 		// test String is not empty
 		assertFalse("MazeRoute does not create a String", routeOne.toString().equals(""));
 		// test MazeRoute for unique identification String
-		assertFalse("MazeRoute does not create a unique identification String", routeOne.toString().equals(routeTwo.toString()));
+		assertFalse("MazeRoute does not create a unique identification String",
+				routeOne.toString().equals(routeTwo.toString()));
 		// test for no passage
-		assertTrue("MazeRoute String does not indicate that there is no passage", routeThree.toString().contains("no passage"));
+		assertTrue("MazeRoute String does not indicate that there is no passage",
+				routeThree.toString().contains("no passage"));
 		// test for invalid MazeRoute String
 		MazeRoute test = new MazeRoute();
-		assertTrue("MazeRoute does not generate the correct message when invalid", test.toString().equals("Uninitialized MazeRoute"));
+		assertTrue("MazeRoute does not generate the correct message when invalid",
+				test.toString().equals("Uninitialized MazeRoute"));
 		// test for an empty route
 		try {
 			test.addCells(new LinkedList<MazeCell>());
-			assertTrue("MazeRoute String does not indicate that the route is empty", test.toString().contains("empty"));
+			assertTrue("MazeRoute String does not indicate that the route is empty",
+					test.toString().contains("empty"));
 		} catch(UninitializedObjectException e) {
 			fail("MazeRoute generated an UninitializedObjectException incorrectly");
 		}
@@ -185,6 +222,13 @@ public class MazeRouteTest {
 		try {
 			test.travelTime();
 			fail("travelTime() method should have thrown an UninitializedObjectException");
+		} catch(UninitializedObjectException e) {
+			// test passed because exception was thrown
+		}
+		// travelTimeRandom() test
+		try {
+			test.travelTimeRandom();
+			fail("travelTimeRandom() method should have thrown an UninitializedObjectException");
 		} catch(UninitializedObjectException e) {
 			// test passed because exception was thrown
 		}
