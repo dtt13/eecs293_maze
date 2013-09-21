@@ -95,7 +95,8 @@ public class MazeCellTest {
 		test.addPassages(new HashMap<MazeCell, Integer>(), testStatus);
 		assertEquals("MazeCell should not be able to add additional Maps to valid cells",
 				MazeCell.Status.Code.ALREADY_VALID, testStatus.get());
-		assertTrue("MazeCell should be valid even if user attempts to add additional Maps to a valid cell", test.isValid());
+		assertTrue("MazeCell should be valid even if user attempts to add additional Maps to a valid cell",
+				test.isValid());
 		// test adding a Map with a non-positive travel time
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
 		map.put(new MazeCell(), new Integer(-3));
@@ -112,9 +113,11 @@ public class MazeCellTest {
 	@Test
 	public void testHashCode() {
 		// test it two MazeCells are different
-		assertFalse("hashCode() of different MazeCells should not be the same", srcOne.hashCode() == srcFour.hashCode());
+		assertFalse("hashCode() of different MazeCells should not be the same",
+				srcOne.hashCode() == srcFour.hashCode());
 		// test when MazeCells reference each other
-		assertFalse("hashCode() of MazeCells that reference each other have an endless loop", srcTwo.hashCode() == srcThree.hashCode());
+		assertFalse("hashCode() of MazeCells that reference each other have an endless loop",
+				srcTwo.hashCode() == srcThree.hashCode());
 	}
 	
 	/**
@@ -124,13 +127,16 @@ public class MazeCellTest {
 	public void testPassages() {
 		try {
 			// test with no impassable passages
-			assertEquals("passages() method does not return the correct passages Map", passages, srcOne.passages());
+			assertEquals("passages() method does not return the correct passages Map",
+					passages, srcOne.passages());
 			// test with all impassable passages
-			assertEquals("passages() method does not return the correct passages Map", new HashMap<MazeCell, Integer>(), srcFive.passages());
+			assertEquals("passages() method does not return the correct passages Map",
+					new HashMap<MazeCell, Integer>(), srcFive.passages());
 			// test with some impassable passages
 			Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
 			map.put(destThree, new Integer(3));
-			assertEquals("passages() method does not return the correct passages Map", map, srcFour.passages());
+			assertEquals("passages() method does not return the correct passages Map",
+					map, srcFour.passages());
 		} catch(UninitializedObjectException e) {
 			fail("passages() method generated an UninitializedObjectException incorrectly");
 		}
@@ -143,11 +149,14 @@ public class MazeCellTest {
 	public void testPassageTimeTo() {
 		try {
 			// test a MazeCell that is passable
-			assertEquals("passageTimeTo() method does not return the correct time", new Integer(3), srcFour.passageTimeTo(destThree));
+			assertEquals("passageTimeTo() method does not return the correct time",
+					new Integer(3), srcFour.passageTimeTo(destThree));
 			// test a MazeCell this is impassable
-			assertEquals("passageTimeTo() method does not return the correct time", new Integer(MazeCell.IMPASSABLE), srcFour.passageTimeTo(destOne));
+			assertEquals("passageTimeTo() method does not return the correct time",
+					new Integer(MazeCell.IMPASSABLE), srcFour.passageTimeTo(destOne));
 			// test a MazeCell that has no passage
-			assertEquals("passageTimeTo() method does not handle non-adjoining MazeCell inputs", new Integer(MazeCell.IMPASSABLE), srcFour.passageTimeTo(destTwo));
+			assertEquals("passageTimeTo() method does not handle non-adjoining MazeCell inputs",
+					new Integer(MazeCell.IMPASSABLE), srcFour.passageTimeTo(destTwo));
 		} catch(UninitializedObjectException e) {
 			fail("passageTimeTo() method generated an UninitializedObjectException incorrectly");
 		}
@@ -160,13 +169,16 @@ public class MazeCellTest {
 	public void testConnectedCells() {
 		try {
 			// test with no impassable passages
-			assertEquals("connectedCells() method does not return the correct MazeCells", passages.keySet(), srcOne.connectedCells());
+			assertEquals("connectedCells() method does not return the correct MazeCells",
+					passages.keySet(), srcOne.connectedCells());
 			// test with all impassable passages
-			assertEquals("connectedCells() method returns MazeCells that shouldn't be passable", new HashSet<MazeCell>(), srcFive.connectedCells());
+			assertEquals("connectedCells() method returns MazeCells that shouldn't be passable",
+					new HashSet<MazeCell>(), srcFive.connectedCells());
 			// test with some impassable passages
 			Set<MazeCell> set = new HashSet<MazeCell>();
 			set.add(destThree);
-			assertEquals("connectedCells() method does not return the correct MazeCells", set, srcFour.connectedCells());
+			assertEquals("connectedCells() method does not return the correct MazeCells",
+					set, srcFour.connectedCells());
 		} catch(UninitializedObjectException e) {
 			fail("connectedCells() method generated an UninitializedObjectException incorrectly");
 		}
@@ -199,10 +211,12 @@ public class MazeCellTest {
 		// test String is not empty
 		assertFalse("MazeCell does not create a String", destOne.toString().equals(""));
 		// test MazeCells for unique identification String
-		assertFalse("MazeCell does not create a unique identification String", destOne.toString().equals(destTwo.toString()));
+		assertFalse("MazeCell does not create a unique identification String",
+				destOne.toString().equals(destTwo.toString()));
 		// test for invalid MazeCell String
 		MazeCell test = new MazeCell();
-		assertTrue("MazeCell does not generate the correct message when invalid", test.toString().equals("Uninitialized MazeCell"));
+		assertTrue("MazeCell does not generate the correct message when invalid",
+				test.toString().equals("Uninitialized MazeCell"));
 	}
 	
 	/**

@@ -1,6 +1,8 @@
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -65,9 +67,10 @@ public class Maze {
 	}
 	
 	/**
-	 * Generates an arbitrary MazeRoute through the Maze starting at the specified
-	 * MazeCell and moving to adjoining MazeCells. If the MazeCell is a dead end or
-	 * the MazeCell has already been visited, the routine exits and the MazeRoute is
+	 * Generates a MazeRoute through the Maze starting at the specified MazeCell 
+	 * and moving to adjoining MazeCells. The next cell along the path is chosen by
+	 * taking the first passage found to an adjoining cell. If a dead end is reached or
+	 * a MazeCell has already been visited, the routine exits and the MazeRoute is
 	 * returned.
 	 * 
 	 * @param initialCell - the starting MazeCell of the route to be created
@@ -82,6 +85,16 @@ public class Maze {
 		return route;
 	}
 	
+	/**
+	 * Generates a MazeRoute through the Maze starting at the specified MazeCell 
+	 * and moving to adjoining MazeCells. The next cell along the path is chosen 
+	 * randomly among adjoining cell. If a dead end is reached or a MazeCell has
+	 * already been visited, the routine exits and the MazeRoute is returned.
+	 * 
+	 * @param initialCell - the starting MazeCell of the route to be created
+	 * @return a MazeRoute of one possible path through the Maze
+	 * @throws UninitializedObjectException - only thrown if the Maze is invalid
+	 */
 	public MazeRoute routeRandom(MazeCell initialCell) throws UninitializedObjectException {
 		validityCheck();
 		MazeRoute route = new MazeRoute();
@@ -103,41 +116,43 @@ public class Maze {
 	
 	/**
 	 * Recursively generates a route until the mouse hits a dead end, leaves
-	 * the maze, or visits the same sell twice.
+	 * the maze, or visits the same cell twice. The next MazeCell along the path
+	 * is chosen by using the first adjoining MazeCell found.
 	 * 
 	 * @param cell - the MazeCell that the mouse is currently in
 	 * @param path - a List of MazeCells that mouse has previously visited
-	 * @return a List contain the new path
-	 * @throws UninitializedObjectException - only
+	 * @return a List containing the new path
+	 * @throws UninitializedObjectException - only thrown if the Maze is invalid
 	 */
 	private List<MazeCell> routeFirstPath(MazeCell cell, List<MazeCell> path)
 			throws UninitializedObjectException {
-		// initialize path if null TODO McCabe?
-		if(path == null) {
-			path = new LinkedList<MazeCell>();
-		}
+		path = initializePathIfNull(path);
 		// base cases : if cell is a dead cell, has been seen before, or isn't in the Maze
 		if(!cells.contains(cell)){
-			path = new LinkedList<MazeCell>();
+			path.clear();
 		} else if(cell.isDeadEnd() || path.contains(cell)) {
 			path.add(cell);	
 		} else { // if never-before-seen cell
 			path.add(cell);
-			Object passages[] = cell.connectedCells().toArray();// TODO better way to do this?
-			int arbitraryPathIndex = 0;
-			MazeCell nextCell = (MazeCell)passages[arbitraryPathIndex];
+			MazeCell nextCell = getNextMazeCell(cell, false);
 			path = routeFirstPath(nextCell, path);
 		}
 		return path;
 	}
 	
-	//
+	/**
+	 * Recursively generates a route until the mouse hits a dead end, leaves
+	 * the maze, or visits the same cell twice. The next MazeCell along the path
+	 * is chosen random from the Set of adjoining MazeCells.
+	 * 
+	 * @param cell - the MazeCell that the mouse is currently in
+	 * @param path - a List of MazeCells that mouse has previously visited
+	 * @return a List containing the new path
+	 * @throws UninitializedObjectException - only thrown if the Maze is invalid
+	 */
 	private List<MazeCell> routeRandomPath(MazeCell cell, List<MazeCell> path)
 			throws UninitializedObjectException {
-		// initialize path if null TODO McCabe?
-		if(path == null) {
-			path = new LinkedList<MazeCell>();
-		}
+		path = initializePathIfNull(path);
 		// base cases : if cell is a dead cell, has been seen before, or isn't in the Maze
 		if(!cells.contains(cell)){
 			path = new LinkedList<MazeCell>();
@@ -145,12 +160,52 @@ public class Maze {
 			path.add(cell);	
 		} else { // if never-before-seen cell
 			path.add(cell);
-			Object passages[] = cell.connectedCells().toArray(); //TODO better way to do this?
-			int arbitraryPathIndex = (int)(passages.length * Math.random());
-			MazeCell nextCell = (MazeCell)passages[arbitraryPathIndex];
+			MazeCell nextCell = getNextMazeCell(cell, true);
 			path = routeFirstPath(nextCell, path);
 		}
 		return path;
+	}
+
+	/**
+	 * Creates an empty path if the input is null. Otherwise, the path is
+	 * unaltered and returned.
+	 * 
+	 * @param path - a potentially-null List
+	 * @return a non-null List that is identical to the input if the input is not null
+	 */
+	private List<MazeCell> initializePathIfNull(List<MazeCell> path) {
+		if(path == null) {
+			path = new LinkedList<MazeCell>();
+		}
+		return path;
+	}
+	
+	/**
+	 * Finds an adjoining MazeCell given the current cell. The current MazeCell must be a
+	 * member of the Maze and must not be a dead end for this method to be used properly.
+	 * If the getRandom boolean parameter is set, the method will return a random
+	 * adjoining MazeCell. If the getRandom parameter is not set, the method will pick
+	 * the first adjoining MazeCell found.
+	 * 
+	 * @param cell - the current MazeCell
+	 * @param getRandom - true if picking a random passage;
+	 * 		false if picking the first passage
+	 * @return an adjoining MazeCell
+	 * @throws UninitializedObjectException - only thrown if the Maze is invalid
+	 */
+	private MazeCell getNextMazeCell(MazeCell cell, boolean getRandom)
+			throws UninitializedObjectException {
+		Set<MazeCell> connectedCells = cell.connectedCells();
+		Iterator<MazeCell> nextCellIterate = connectedCells.iterator();
+		MazeCell nextCell = nextCellIterate.next();
+		if(getRandom) {
+			Random randomGen = new Random();
+			int randomIndex = randomGen.nextInt(connectedCells.size());
+			for(int i = 0; i < randomIndex && nextCellIterate.hasNext(); i++) {
+				nextCell = nextCellIterate.next();
+			}
+		}
+		return nextCell;
 	}
 	
 	/**
@@ -159,7 +214,7 @@ public class Maze {
 	 * 
 	 * @param cell - the MazeCell to create a String for
 	 * @return a String contain information of the MazeCell and its adjoining cells
-	 * @throws UninitializedObjectException if the MazeCell is invalid
+	 * @throws UninitializedObjectException - only thrown if the MazeCell is invalid
 	 */
 	private String buildCellString(MazeCell cell) throws UninitializedObjectException {
 		StringBuilder builder = new StringBuilder();
