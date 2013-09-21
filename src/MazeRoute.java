@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -85,15 +86,16 @@ public class MazeRoute {
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	public Integer travelTime() throws UninitializedObjectException { //TODO consider iterator
+	public Integer travelTime() throws UninitializedObjectException {
 		validityCheck();
 		int totalTime = 0;
 		if(!route.isEmpty()) {
 			// add up the travel time from one MazeCell to the next
+			Iterator<MazeCell> routeIterate = route.iterator();
+			MazeCell prevCell = routeIterate.next();
 			MazeCell currentCell;
-			MazeCell prevCell = route.get(0);
-			for(int i = 1; i < route.size(); i++) {
-				currentCell = route.get(i);
+			while(routeIterate.hasNext()) {
+				currentCell = routeIterate.next();
 				Integer time = prevCell.passageTimeTo(currentCell);
 				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
 					totalTime += time;
@@ -116,15 +118,16 @@ public class MazeRoute {
 	 * @return the time needed to travel the MazeRoute
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	public Integer travelTimeRandom() throws UninitializedObjectException { //TODO consider iterator
+	public Integer travelTimeRandom() throws UninitializedObjectException {
 		validityCheck();
 		int totalTime = 0;
 		if(!route.isEmpty()) {
 			// add up the travel time from one MazeCell to the next
+			Iterator<MazeCell> routeIterate = route.iterator();
+			MazeCell prevCell = routeIterate.next();
 			MazeCell currentCell;
-			MazeCell prevCell = route.get(0);
 			for(int i = 1; i < route.size(); i++) {
-				currentCell = route.get(i);
+				currentCell = routeIterate.next();
 				Integer time = prevCell.passageTimeTo(currentCell);
 				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
 					Random randomTime = new Random();
