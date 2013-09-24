@@ -51,12 +51,12 @@ public class MazeCellStatusTest {
 	@Test
 	public void testGetMessage() {
 		assertEquals("OK status message does not match expected output",
-				"The MazeCell is operating normally", ok.getMessage());
+				"The MazeCell is operating normally", ok.get().getMessage());
 		assertEquals("ALREADY_VALID status message does not match expected output",
-				"The MazeCell is already valid and the passages cannot be updated", alreadyValid.getMessage());
+				"The MazeCell is already valid and the passages cannot be updated", alreadyValid.get().getMessage());
 		assertEquals("INVALID_TIME status message does not match expected output",
-				"A non-positive travel time is invalid", invalidTime.getMessage());
+				"A non-positive travel time is invalid", invalidTime.get().getMessage());
 		assertEquals("INPUT_NULL status message does not match expected output",
-				"A null Map is an unacceptable parameter", inputNull.getMessage());
+				"A null Map is an unacceptable parameter", inputNull.get().getMessage());
 	}
 }

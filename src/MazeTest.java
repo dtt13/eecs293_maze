@@ -107,7 +107,7 @@ public class MazeTest {
 	 * Tests the addCells() and isValid() methods with valid and invalid inputs.
 	 */
 	@Test
-	public void testAddCellsAndIsValid() {
+	public void testAddCellsAndIsValid() { //TODO separate tests
 		try {
 			// test with null Set
 			Maze test = new Maze();

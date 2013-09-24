@@ -16,8 +16,6 @@ import org.junit.Test;
  *
  */
 public class MazeCellTest {
-//	// private constants
-//	private static final 
 	// private class variables
 	private Map<MazeCell, Integer> passages;
 	private MazeCell destOne;
@@ -77,7 +75,7 @@ public class MazeCellTest {
 	 * Tests the addPassages() and isValid() methods with valid and invalid inputs.
 	 */
 	@Test
-	public void testAddPassagesAndIsValid() {
+	public void testAddPassagesAndIsValid() { //TODO separate tests
 		// test with null Map
 		MazeCell test = new MazeCell();
 		MazeCell.Status testStatus = new MazeCell.Status();

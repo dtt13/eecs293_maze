@@ -27,6 +27,8 @@ public class MazeCell {
 	 * and invalidates the cell until passages have been added.
 	 */
 	public MazeCell() {
+//		AtomicInteger numMazeCells = new AtomicInteger(); 
+		//TODO thread safe
 		this.mazeCellId = ++numMazeCellDeclarations;
 		this.isValid = false;
 	}
@@ -38,7 +40,7 @@ public class MazeCell {
 	 * 
 	 * @param passages - a Map of adjoining MazeCells to their corresponding Integer time
 	 * required to reach that cell
-	 * @return true if the passages were added, false if the passages were not added
+	 * @param status - a Status class reference that indicates the status of the 
 	 */
 	public void addPassages(Map<MazeCell, Integer> passages, Status status) {
 		if(passages == null) { // null input is not accepted
@@ -212,47 +214,31 @@ public class MazeCell {
 	 *
 	 */
 	public static class Status {
-		/**
-		 * Represents the status codes that the Status class can express.
-		 */
 		public static enum Code {
-			OK, ALREADY_VALID, INVALID_TIME, INPUT_NULL
+			OK("The MazeCell is operating normally"),
+			ALREADY_VALID("The MazeCell is already valid and the passages cannot be updated"),
+			INVALID_TIME("A non-positive travel time is invalid"),
+			INPUT_NULL("A null Map is an unacceptable parameter");
+			
+			private String message;
+			
+			Code(String message) {
+				this.message = message;
+			}
+			
+			public String getMessage() {
+				return message;
+			}
 		}
 		
 		// private class variables
 		private Code code;
 		
-		/**
-		 * Constructor for the Status class which initializes the current
-		 * status to Code.OK.
-		 */
 		public Status() {
 			this.code = Code.OK;
 		}
 		
 		/**
-		 * Generates a helpful message based on a specific status code.
-		 * 
-		 * @return a String message containing details about the status code
-		 */
-		public String getMessage() {
-			switch(code) {
-			case OK:
-				return "The MazeCell is operating normally";
-			case ALREADY_VALID:
-				return "The MazeCell is already valid and the passages cannot be updated";
-			case INVALID_TIME:
-				return "A non-positive travel time is invalid";
-			case INPUT_NULL:
-				return "A null Map is an unacceptable parameter";
-			default:
-				return "Error: Cannot find status code";
-			}
-		}
-		
-		/**
-		 * Sets the status code to the specified value.
-		 * 
 		 * @param code - the status code to be set
 		 */
 		public void set(Code code) {
@@ -260,8 +246,6 @@ public class MazeCell {
 		}
 		
 		/**
-		 * Retrieves the status code.
-		 * 
 		 * @return the current status code
 		 */
 		public Code get() {

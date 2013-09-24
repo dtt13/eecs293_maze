@@ -88,7 +88,7 @@ public class MazeRouteTest {
 	 * Tests the addCells() and isValid() methods with valid and invalid inputs.
 	 */
 	@Test
-	public void testAddCellsAndIsValid() {
+	public void testAddCellsAndIsValid() { //TODO separate tests
 		try {
 			// test with null List
 			MazeRoute test = new MazeRoute();
@@ -159,6 +159,7 @@ public class MazeRouteTest {
 			assertEquals("travelTimeRandom() method does not return the correct travel time when there is an impassable passage",
 					new Integer(MazeCell.IMPASSABLE), routeThree.travelTimeRandom());
 			// test route with all passable passages
+			//TODO maybe a loop?
 			int randomTime = routeOne.travelTimeRandom();
 			assertTrue("travelTimeRandom() method does not return a valid travel time when all passages are passable",
 					(randomTime == 2) || ( randomTime == 3));

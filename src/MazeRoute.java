@@ -2,7 +2,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Random;
 
 /**
  * The MazeRoute class represents a single path in a maze composed of a list of MazeCells.
@@ -22,6 +21,7 @@ public class MazeRoute {
 	 * and invalidates the route until a route has been added.
 	 */
 	public MazeRoute() {
+		//TODO thread safe
 		this.mazeRouteId = ++numMazeRouteDeclarations;
 		this.isValid = false;
 	}
@@ -79,25 +79,7 @@ public class MazeRoute {
 	 */
 	public Integer travelTime() throws UninitializedObjectException {
 		validityCheck();
-		int totalTime = 0;
-		if(!route.isEmpty()) {
-			// add up the travel time from one MazeCell to the next
-			Iterator<MazeCell> routeIterate = route.iterator();
-			MazeCell prevCell = routeIterate.next();
-			MazeCell currentCell;
-			while(routeIterate.hasNext()) {
-				currentCell = routeIterate.next();
-				Integer time = prevCell.passageTimeTo(currentCell);
-				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
-					totalTime += time;
-				} else { // return impassable if one passage is impassable
-					return new Integer(MazeCell.IMPASSABLE);
-				}
-				// increment the prevCell for the next iteration
-				prevCell = currentCell;
-			}
-		}
-		return new Integer(totalTime);
+		return calculateTravelTime(false);
 	}
 	
 	/**
@@ -111,26 +93,27 @@ public class MazeRoute {
 	 */
 	public Integer travelTimeRandom() throws UninitializedObjectException {
 		validityCheck();
-		int totalTime = 0;
-		if(!route.isEmpty()) {
-			// add up the travel time from one MazeCell to the next
-			Iterator<MazeCell> routeIterate = route.iterator();
-			MazeCell prevCell = routeIterate.next();
-			MazeCell currentCell;
-			for(int i = 1; i < route.size(); i++) {
-				currentCell = routeIterate.next();
-				Integer time = prevCell.passageTimeTo(currentCell);
-				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
-					Random randomTime = new Random();
-					totalTime += randomTime.nextInt(time) + 1; // randomize between 1 and time
-				} else { // return impassable if one passage is impassable
-					return new Integer(MazeCell.IMPASSABLE);
-				}
-				// increment the prevCell for the next iteration
-				prevCell = currentCell;
-			}
-		}
-		return new Integer(totalTime);
+//		int totalTime = 0;
+//		if(!route.isEmpty()) {
+//			// add up the travel time from one MazeCell to the next
+//			Iterator<MazeCell> routeIterate = route.iterator();
+//			MazeCell prevCell = routeIterate.next();
+//			MazeCell currentCell;
+//			for(int i = 1; i < route.size(); i++) {
+//				currentCell = routeIterate.next();
+//				Integer time = prevCell.passageTimeTo(currentCell);
+//				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
+//					Random randomTime = new Random();
+//					totalTime += randomTime.nextInt(time) + 1; // randomize between 1 and time
+//				} else { // return impassable if one passage is impassable
+//					return new Integer(MazeCell.IMPASSABLE);
+//				}
+//				// increment the prevCell for the next iteration
+//				prevCell = currentCell;
+//			}
+//		}
+//		return new Integer(totalTime);
+		return calculateTravelTime(true);
 	}
 	
 	/**
@@ -152,7 +135,7 @@ public class MazeRoute {
 			}
 		}
 	}
-	
+
 	/**
 	 * Generates an exception if MazeRoute is invalid.
 	 * 
@@ -165,6 +148,31 @@ public class MazeRoute {
 		}
 	}
 	
+	private int calculateTravelTime(boolean isRandom) throws UninitializedObjectException { //TODO make this cleaner still
+		int totalTime = 0;
+		if(!route.isEmpty()) {
+			// add up the travel time from one MazeCell to the next
+			Iterator<MazeCell> routeIterate = route.iterator();
+			MazeCell prevCell = routeIterate.next();
+			MazeCell currentCell;
+			while(routeIterate.hasNext()) {
+				currentCell = routeIterate.next();
+				int time = prevCell.passageTimeTo(currentCell);
+				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
+					if(isRandom) {
+						time = (int)(Math.random() * time + 1);
+					}
+					totalTime += time;
+				} else { // return impassable if one passage is impassable
+					return MazeCell.IMPASSABLE;
+				}
+				// increment the prevCell for the next iteration
+				prevCell = currentCell;
+			}
+		}
+		return totalTime;
+	}
+
 	/**
 	 * Generates a String only containing the route of MazeCells. The
 	 * route must contain at least one MazeCell to be used properly.
