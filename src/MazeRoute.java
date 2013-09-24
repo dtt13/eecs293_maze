@@ -37,16 +37,7 @@ public class MazeRoute {
 	 */
 	public boolean addCells(List<MazeCell> route) throws UninitializedObjectException {
 		if(!isValid && route != null){ // copy the route if the route is already invalid
-			// copies the List to avoid inadvertent changes
-			this.route = new LinkedList<MazeCell>();
-			for(MazeCell cell : route) {
-				if(cell.isValid()) {
-					this.route.add(cell);
-				} else { // if at any point a cell is invalid, route is invalid and not updated
-					this.route = null;
-					throw new UninitializedObjectException();
-				}
-			}
+			copyCells(route);
 			isValid = true;
 			return true;
 		} else { // don't copy the route if the route was already valid or the input was null
@@ -140,6 +131,26 @@ public class MazeRoute {
 			}
 		}
 		return new Integer(totalTime);
+	}
+	
+	/**
+	 * Adds the input route to the MazeRoute and checks that all MazeCells being added
+	 * are valid.
+	 * 
+	 * @param route - a List of MazeCells representing a series of passages in order of traversal
+	 * @throws UninitializedObjectException if any MazeCell being added to the MazeRoute is invalid
+	 */
+	private void copyCells(List<MazeCell> route) throws UninitializedObjectException {
+		// copies the List to avoid inadvertent changes
+		this.route = new LinkedList<MazeCell>();
+		for(MazeCell cell : route) {
+			if(cell.isValid()) {
+				this.route.add(cell);
+			} else { // if at any point a cell is invalid, route is invalid and not updated
+				this.route = null;
+				throw new UninitializedObjectException();
+			}
+		}
 	}
 	
 	/**

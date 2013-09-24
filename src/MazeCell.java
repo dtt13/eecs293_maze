@@ -10,7 +10,7 @@ import java.util.Set;
  * 
  */
 public class MazeCell {
-	// class constants
+	// public class constants
 	/**
 	 * Represents an impassable passage.
 	 */
@@ -43,7 +43,7 @@ public class MazeCell {
 	public void addPassages(Map<MazeCell, Integer> passages, Status status) {
 		if(passages == null) { // null input is not accepted
 			status.set(Status.Code.INPUT_NULL);
-		} else if (!isValid) { // copy the passages if the cell is invalid
+		} else if(!isValid) { // copy the passages if the cell is invalid
 			boolean isCopied = copyPassages(passages);
 			if(isCopied) {
 				isValid = true;
@@ -212,9 +212,8 @@ public class MazeCell {
 	 *
 	 */
 	public static class Status {
-		
 		/**
-		 * Represents the status codes that Status can express.
+		 * Represents the status codes that the Status class can express.
 		 */
 		public static enum Code {
 			OK, ALREADY_VALID, INVALID_TIME, INPUT_NULL
@@ -236,7 +235,7 @@ public class MazeCell {
 		 * 
 		 * @return a String message containing details about the status code
 		 */
-		public String getMessage(){
+		public String getMessage() {
 			switch(code) {
 			case OK:
 				return "The MazeCell is operating normally";
@@ -247,7 +246,7 @@ public class MazeCell {
 			case INPUT_NULL:
 				return "A null Map is an unacceptable parameter";
 			default:
-				return "Error : Cannot find status code";
+				return "Error: Cannot find status code";
 			}
 		}
 		
