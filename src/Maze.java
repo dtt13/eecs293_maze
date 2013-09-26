@@ -112,7 +112,21 @@ public class Maze {
 	public Double averageExitTime(MazeCell outside, PassageSelector passageSelector)
 			throws UninitializedObjectException {
 		validityCheck();
-		return null;
+		int totalTime = 0;
+		int numPaths = 0;
+		for(MazeCell cell : cells) {
+			if(cell != outside) { //TODO check condition
+				MazeRoute path = route(cell, passageSelector); //TODO this doesn't stop at the right spot
+				int time = path.travelTime();
+				if(time != MazeCell.IMPASSABLE) {
+					totalTime += time;
+					numPaths++;
+				} else {
+					return MazeCell.IMPASSABLE_DOUBLE;
+				}
+			}
+		}
+		return (double)(totalTime / numPaths);
 	}
 	
 	/**
@@ -178,7 +192,6 @@ public class Maze {
 		}
 		return path;
 	}
-	
 
 	/**
 	 * Creates an empty path if the input is null. Otherwise, the path is

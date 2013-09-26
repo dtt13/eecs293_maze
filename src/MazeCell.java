@@ -11,10 +11,8 @@ import java.util.Set;
  */
 public class MazeCell {
 	// public class constants
-	/**
-	 * Represents an impassable passage.
-	 */
 	public final static int IMPASSABLE = Integer.MAX_VALUE;
+	public final static double IMPASSABLE_DOUBLE = Double.MAX_VALUE;
 	
 	// private class variables
 	private static int numMazeCellDeclarations = 0;
