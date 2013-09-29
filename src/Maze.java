@@ -2,6 +2,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The Maze class represents a collection of MazeCells that make up
@@ -12,7 +13,7 @@ import java.util.Set;
  */
 public class Maze {
 	// private class variables
-	private static int numMazeDeclarations = 0;
+	private static AtomicInteger mazeInstances = new AtomicInteger();
 	private int mazeId; // used to differentiate Maze objects
 	private boolean isValid;
 	private Set<MazeCell> cells;
@@ -22,8 +23,7 @@ public class Maze {
 	 * and invalidates the route until a route has been added.
 	 */
 	public Maze() {
-		//TODO thread safe
-		this.mazeId = ++numMazeDeclarations;
+		this.mazeId = mazeInstances.getAndIncrement();
 		this.isValid = false;
 	}
 	
@@ -100,25 +100,44 @@ public class Maze {
 		return route(initialCell, new GreedySelector());
 	}
 	
+	/**
+	 * Generates a MazeRoute through the Maze starting at the specified MazeCell 
+	 * and moving to adjoining MazeCells. The next cell along the path is chosen 
+	 * based on the PassageSelector's implementation of the nextCell() method. If
+	 * a dead end is reached or a MazeCell has already been visited, the routine
+	 * exits and the MazeRoute is returned.
+	 * 
+	 * @param initialCell - the starting MazeCell of the route to be created
+	 * @param passageSelector - implementation of the next cell algorithm
+	 * @return a MazeRoute of one possible path through the Maze
+	 * @throws UninitializedObjectException only thrown if the Maze is invalid
+	 */
 	public MazeRoute route(MazeCell initialCell, PassageSelector passageSelector)
 			throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		MazeRoute route = new MazeRoute();
-		List<MazeCell> path = routePath(initialCell, null, passageSelector);
+		List<MazeCell> path;
+		if(passageSelector != null) {
+			path = routePath(initialCell, null, null, passageSelector);
+		} else {
+			path = new LinkedList<MazeCell>(); // return an empty MazeRoute
+		}
 		route.addCells(path);
 		return route;
 	}
 	
 	public Double averageExitTime(MazeCell outside, PassageSelector passageSelector)
 			throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		int totalTime = 0;
 		int numPaths = 0;
 		for(MazeCell cell : cells) {
 			if(cell != outside) { //TODO check condition
-				MazeRoute path = route(cell, passageSelector); //TODO this doesn't stop at the right spot
-				int time = path.travelTime();
-				if(time != MazeCell.IMPASSABLE) {
+				MazeRoute route = new MazeRoute();
+				List<MazeCell> path = routePath(cell, outside, null, passageSelector);
+				route.addCells(path);
+				int time = route.travelTime();
+				if(time != MazeCell.IMPASSABLE && path.contains(outside)) {
 					totalTime += time;
 					numPaths++;
 				} else {
@@ -154,7 +173,7 @@ public class Maze {
 	 * 
 	 * @throws UninitializedObjectException only thrown if the Maze is invalid
 	 */
-	private void validityCheck() throws UninitializedObjectException {
+	private void checkValidity() throws UninitializedObjectException {
 		if(!isValid) {
 			throw new UninitializedObjectException();
 		}
@@ -163,29 +182,30 @@ public class Maze {
 	/**
 	 * Recursively generates a route until the mouse hits a dead end, leaves
 	 * the maze, or visits the same cell twice. The next MazeCell along the path
-	 * is chosen by using the first adjoining MazeCell found or randomly,
-	 * depending on the whether the isRandom parameter is set. For the initial call
+	 * is chosen according to the PassageSelector specified. For the initial call
 	 * to this method, the path should be null.
 	 * 
 	 * @param cell - the MazeCell that the mouse is currently in
+	 * @param outside - the MazeCell indicating the end of the maze
 	 * @param path - a List of MazeCells that mouse has previously visited
 	 * @param passageSelector - a PassageSelector that specifies the 
 	 * @return a List containing the new path
 	 * @throws UninitializedObjectException only thrown if the Maze is invalid
 	 */
-	private List<MazeCell> routePath(MazeCell cell, List<MazeCell> path, PassageSelector passageSelector)
-			throws UninitializedObjectException {
+	private List<MazeCell> routePath(MazeCell cell, MazeCell outside, List<MazeCell> path, PassageSelector passageSelector)
+			throws UninitializedObjectException { //TODO McCabe's
 		path = initializePathIfNull(path);
-		// base case: cell isn't in the Maze
 		if(!cells.contains(cell)) {
+			// base case: cell isn't in the Maze
 			path.clear();
-		} else if(path.contains(cell)) { // base case: cell has been visited before
-			path.add(cell);	
+		} else if(path.contains(cell) || cell == outside) {
+			// base case: cell has been visited before or is exit to the maze
+			path.add(cell); //TODO check this condition^	
 		} else { // if never-before-seen cell
 			path.add(cell);
 			MazeCell nextCell = passageSelector.nextCell(cell);
 			if(nextCell != null) {
-				path = routePath(nextCell, path, passageSelector);
+				path = routePath(nextCell, outside, path, passageSelector);
 			} else {
 				// don't recurse since there is nowhere else to go
 			}
@@ -239,7 +259,7 @@ public class Maze {
 		StringBuilder builder = new StringBuilder();
 		builder.append("<Maze ID " + mazeId + ">:\n");
 		try {
-			validityCheck();
+			checkValidity();
 			if(cells.isEmpty()) {
 				builder.append("empty");
 			} else {

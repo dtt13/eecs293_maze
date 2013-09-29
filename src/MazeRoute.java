@@ -2,6 +2,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The MazeRoute class represents a single path in a maze composed of a list of MazeCells.
@@ -11,7 +12,7 @@ import java.util.ListIterator;
  */
 public class MazeRoute {
 	// private class variables
-	private static int numMazeRouteDeclarations = 0;
+	private static AtomicInteger mazeRouteInstances = new AtomicInteger();
 	private int mazeRouteId; // used to differentiate MazeRoute objects
 	private boolean isValid;
 	private List<MazeCell> route;
@@ -21,8 +22,7 @@ public class MazeRoute {
 	 * and invalidates the route until a route has been added.
 	 */
 	public MazeRoute() {
-		//TODO thread safe
-		this.mazeRouteId = ++numMazeRouteDeclarations;
+		this.mazeRouteId = mazeRouteInstances.getAndIncrement();
 		this.isValid = false;
 	}
 	
@@ -63,7 +63,7 @@ public class MazeRoute {
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	public List<MazeCell> getCells() throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		// copy the cells to a new List to avoid inadvertent changes to the route
 		return new LinkedList<MazeCell>(route);
 	}
@@ -78,7 +78,7 @@ public class MazeRoute {
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	public Integer travelTime() throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		return calculateTravelTime(false);
 	}
 	
@@ -92,27 +92,7 @@ public class MazeRoute {
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
 	public Integer travelTimeRandom() throws UninitializedObjectException {
-		validityCheck();
-//		int totalTime = 0;
-//		if(!route.isEmpty()) {
-//			// add up the travel time from one MazeCell to the next
-//			Iterator<MazeCell> routeIterate = route.iterator();
-//			MazeCell prevCell = routeIterate.next();
-//			MazeCell currentCell;
-//			for(int i = 1; i < route.size(); i++) {
-//				currentCell = routeIterate.next();
-//				Integer time = prevCell.passageTimeTo(currentCell);
-//				if(time != MazeCell.IMPASSABLE) { // only add times if the passage is passable
-//					Random randomTime = new Random();
-//					totalTime += randomTime.nextInt(time) + 1; // randomize between 1 and time
-//				} else { // return impassable if one passage is impassable
-//					return new Integer(MazeCell.IMPASSABLE);
-//				}
-//				// increment the prevCell for the next iteration
-//				prevCell = currentCell;
-//			}
-//		}
-//		return new Integer(totalTime);
+		checkValidity();
 		return calculateTravelTime(true);
 	}
 	
@@ -141,13 +121,22 @@ public class MazeRoute {
 	 * 
 	 * @throws UninitializedObjectException only thrown if the MazeRoute is invalid
 	 */
-	private void validityCheck() throws UninitializedObjectException {
+	private void checkValidity() throws UninitializedObjectException {
 		// generate an exception if maze route is invalid
 		if(!isValid) {
 			throw new UninitializedObjectException();
 		}
 	}
 	
+	/**
+	 * Sums the travel time of taking a path through the maze. The travel time can be
+	 * randomized by setting the isRandom parameter which adds a passage time between
+	 * 1 and the actual travel time for that passage.
+	 * 
+	 * @param isRandom true to randomize travel times; false otherwise
+	 * @return a travel time
+	 * @throws UninitializedObjectException only thrown if a MazeCell is invalid
+	 */
 	private int calculateTravelTime(boolean isRandom) throws UninitializedObjectException { //TODO make this cleaner still
 		int totalTime = 0;
 		if(!route.isEmpty()) {

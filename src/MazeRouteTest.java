@@ -85,21 +85,38 @@ public class MazeRouteTest {
 	}
 	
 	/**
-	 * Tests the addCells() and isValid() methods with valid and invalid inputs.
+	 * Tests the addCells() method with valid and invalid inputs.
 	 */
 	@Test
-	public void testAddCellsAndIsValid() { //TODO separate tests
+	public void testAddCells() {
 		try {
 			// test with null List
 			MazeRoute test = new MazeRoute();
-			assertFalse("MazeRoute should be initialized to be invalid", test.isValid());
 			assertFalse("Null List should not be added as a route", test.addCells(null));
 			// test adding a non-null List
 			assertTrue("Did not properly add a route List", test.addCells(new LinkedList<MazeCell>()));
-			assertTrue("MazeRoute should be valid after adding a route", test.isValid());
 			// test adding a List to an already valid route
 			assertFalse("MazeRoute should not be able to add additional cells to a valid route",
 					test.addCells(new LinkedList<MazeCell>()));
+		} catch(UninitializedObjectException e) {
+			fail("addCells() method generated an UninitizedObjectException incorrectly");
+		}
+	}
+	
+	/**
+	 * Tests the isValid() method with valid and invalid inputs.
+	 */
+	@Test
+	public void testIsValid() {
+		try {
+			// test initialization
+			MazeRoute test = new MazeRoute();
+			assertFalse("MazeRoute should be initialized to be invalid", test.isValid());
+			// test adding a non-null List
+			test.addCells(new LinkedList<MazeCell>());
+			assertTrue("MazeRoute should be valid after adding a route", test.isValid());
+			// test adding a List to an already valid route
+			test.addCells(new LinkedList<MazeCell>());
 			assertTrue("MazeRoute should be valid even if user attempts to add additional cells to a valid route",
 					test.isValid());
 		} catch(UninitializedObjectException e) {
@@ -159,10 +176,18 @@ public class MazeRouteTest {
 			assertEquals("travelTimeRandom() method does not return the correct travel time when there is an impassable passage",
 					new Integer(MazeCell.IMPASSABLE), routeThree.travelTimeRandom());
 			// test route with all passable passages
-			//TODO maybe a loop?
-			int randomTime = routeOne.travelTimeRandom();
-			assertTrue("travelTimeRandom() method does not return a valid travel time when all passages are passable",
-					(randomTime == 2) || ( randomTime == 3));
+			boolean answer2 = false, answer3 = false;
+			for(int i = 0; i < 10; i++) {
+				int randomTime = routeOne.travelTimeRandom();
+				if(randomTime == 2) {
+					answer2 = true;
+				}
+				if(randomTime == 3) {
+					answer3 = true;
+				}
+			}
+			assertTrue("travelTimeRandom() method does not return a random travel time when all passages are passable",
+					answer2 && answer3);
 		} catch(UninitializedObjectException e) {
 			fail("travelTimeRandom() method generated an UninitializedObjectException incorrectly");
 		}

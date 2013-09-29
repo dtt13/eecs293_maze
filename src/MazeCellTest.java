@@ -72,14 +72,13 @@ public class MazeCellTest {
 	}
 	
 	/**
-	 * Tests the addPassages() and isValid() methods with valid and invalid inputs.
+	 * Tests the addPassages() method with valid and invalid inputs.
 	 */
 	@Test
-	public void testAddPassagesAndIsValid() { //TODO separate tests
+	public void testAddPassages() {
 		// test with null Map
 		MazeCell test = new MazeCell();
 		MazeCell.Status testStatus = new MazeCell.Status();
-		assertFalse("MazeCell should be initialized to be invalid", test.isValid());
 		test.addPassages(null, testStatus);
 		assertEquals("Null Map should not be added as passages",
 				MazeCell.Status.Code.INPUT_NULL, testStatus.get());
@@ -88,13 +87,10 @@ public class MazeCellTest {
 		test.addPassages(new HashMap<MazeCell, Integer>(), testStatus);
 		assertEquals("Did not properly add passages Map",
 				MazeCell.Status.Code.OK, testStatus.get());
-		assertTrue("MazeCell should be valid after adding passages", test.isValid());
 		// test adding a Map to an already valid cell
 		test.addPassages(new HashMap<MazeCell, Integer>(), testStatus);
 		assertEquals("MazeCell should not be able to add additional Maps to valid cells",
 				MazeCell.Status.Code.ALREADY_VALID, testStatus.get());
-		assertTrue("MazeCell should be valid even if user attempts to add additional Maps to a valid cell",
-				test.isValid());
 		// test adding a Map with a non-positive travel time
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
 		map.put(new MazeCell(), new Integer(-3));
@@ -102,6 +98,29 @@ public class MazeCellTest {
 		test.addPassages(map, testStatus);
 		assertEquals("MazeCell should not be able to add passages with non-positive travel time",
 				MazeCell.Status.Code.INVALID_TIME, testStatus.get());
+	}
+	
+	/**
+	 * Tests the isValid() method with valid and invalid inputs.
+	 * 
+	 */
+	@Test
+	public void testIsValid() {
+		// test initialization
+		MazeCell test = new MazeCell();
+		assertFalse("MazeCell should be initialized to be invalid", test.isValid());
+		// test adding a non-null Map
+		test.addPassages(new HashMap<MazeCell, Integer>(), new MazeCell.Status());
+		assertTrue("MazeCell should be valid after adding passages", test.isValid());
+		// test adding a Map to an already valid cell
+		test.addPassages(new HashMap<MazeCell, Integer>(), new MazeCell.Status());
+		assertTrue("MazeCell should be valid even if user attempts to add additional Maps to a valid cell",
+				test.isValid());
+		// test adding a Map with a non-positive travel time
+		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
+		map.put(new MazeCell(), new Integer(-3));
+		test = new MazeCell();
+		test.addPassages(map, new MazeCell.Status());
 		assertFalse("MazeCell should be invalid if travel time is non-positive", test.isValid());
 	}
 	

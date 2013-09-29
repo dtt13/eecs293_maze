@@ -2,6 +2,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The MazeCell class represents a single cell in a maze and its passages to adjoining cells.
@@ -15,7 +16,7 @@ public class MazeCell {
 	public final static double IMPASSABLE_DOUBLE = Double.MAX_VALUE;
 	
 	// private class variables
-	private static int numMazeCellDeclarations = 0;
+	private static AtomicInteger mazeCellInstances = new AtomicInteger();
 	private int mazeCellId; // used to differentiate MazeCell objects
 	private boolean isValid;
 	private Map<MazeCell, Integer> passages;
@@ -25,9 +26,7 @@ public class MazeCell {
 	 * and invalidates the cell until passages have been added.
 	 */
 	public MazeCell() {
-//		AtomicInteger numMazeCells = new AtomicInteger(); 
-		//TODO thread safe
-		this.mazeCellId = ++numMazeCellDeclarations;
+		this.mazeCellId = mazeCellInstances.getAndIncrement();
 		this.isValid = false;
 	}
 	
@@ -69,7 +68,7 @@ public class MazeCell {
 
 	/**
 	 * Generates a mapping of MazeCells to Integers that gives the travel time
-	 * associated with taking a passage from 
+	 * associated with taking a passage from the calling MazeCell to the adjoining cell.
 	 * 
 	 * @return a Map containing all the passable passages that maps from an adjoining
 	 * MazeCell to its corresponding Integer time of travel from the current MazeCell
@@ -77,7 +76,7 @@ public class MazeCell {
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public Map<MazeCell, Integer> passages() throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		// copy passages that are passable into a new Map to avoid inadvertent changes
 		Map<MazeCell, Integer> map = new HashMap<MazeCell, Integer>();
 		for(MazeCell cell : passages.keySet()) {
@@ -101,7 +100,7 @@ public class MazeCell {
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public Integer passageTimeTo(MazeCell cell) throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		// use the Map of passages to find the time
 		Integer time = passages.get(cell);
 		if(time == null) { // if this key has no value, assume the passage is impassable
@@ -115,13 +114,13 @@ public class MazeCell {
 
 	/**
 	 * Generates a Set of all directly-connected MazeCells. This Set does not include
-	 * MazeCells for which the passages is impassable.
+	 * MazeCells for which the passage is impassable.
 	 * 
 	 * @return a Set of all directly-connected MazeCells
 	 * @throws UninitializedObjectException only thrown if the MazeCell is invalid
 	 */
 	public Set<MazeCell> connectedCells() throws UninitializedObjectException {
-		validityCheck();
+		checkValidity();
 		// copy passages that are passable into a new Set to avoid inadvertent changes to the Map
 		Set<MazeCell> set = new HashSet<MazeCell>();
 		for(MazeCell cell : passages.keySet()) {
@@ -174,7 +173,7 @@ public class MazeCell {
 	 * 
 	 * @throws UninitializedObjectException only thrown if MazeCell is invalid
 	 */
-	private void validityCheck() throws UninitializedObjectException {
+	private void checkValidity() throws UninitializedObjectException {
 		if(!isValid) {
 			throw new UninitializedObjectException();
 		}

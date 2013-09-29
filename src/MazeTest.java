@@ -65,7 +65,7 @@ public class MazeTest {
 		cellFive.addPassages(map, new MazeCell.Status());
 		// cellSix points to cellSeven and cellEight
 		map = new HashMap<MazeCell, Integer>();
-		map.put(cellSeven, new Integer(7));
+		map.put(cellSeven, new Integer(14));
 		map.put(cellEight, new Integer(8));
 		cellSix.addPassages(map, new MazeCell.Status());
 		// cellSeven is a dead end
@@ -104,21 +104,38 @@ public class MazeTest {
 	}
 	
 	/**
-	 * Tests the addCells() and isValid() methods with valid and invalid inputs.
+	 * Tests the addCells() method with valid and invalid inputs.
 	 */
 	@Test
-	public void testAddCellsAndIsValid() { //TODO separate tests
+	public void testAddCells() { 
 		try {
 			// test with null Set
 			Maze test = new Maze();
-			assertFalse("Maze should be initialized to be invalid", test.isValid());
 			assertFalse("Null Set should not be added as a maze", test.addCells(null));
 			// test adding a non-null Set
 			assertTrue("Did not properly add cells to the maze", test.addCells(new HashSet<MazeCell>()));
-			assertTrue("Maze should be valid after adding cells", test.isValid());
 			// test adding a List to an already valid route
 			assertFalse("Maze should not be able to add additional cells to a valid maze",
 					test.addCells(new HashSet<MazeCell>()));
+		} catch(UninitializedObjectException e) {
+			fail("addCells() method generated an UninitizedObjectException incorrectly");
+		}
+	}
+	
+	/**
+	 * Tests the isValid() method with valid and invalid inputs.
+	 */
+	@Test
+	public void testIsValid() {
+		try {
+			// test initialization
+			Maze test = new Maze();
+			assertFalse("Maze should be initialized to be invalid", test.isValid());
+			// test adding a non-null Set
+			test.addCells(new HashSet<MazeCell>());
+			assertTrue("Maze should be valid after adding cells", test.isValid());
+			// test adding a Set to an already valid maze
+			test.addCells(new HashSet<MazeCell>());
 			assertTrue("Maze should be valid even if user attempts to add additional cells to a valid maze",
 					test.isValid());
 		} catch(UninitializedObjectException e) {
@@ -198,6 +215,53 @@ public class MazeTest {
 		}
 	}
 	
+	@Test
+	public void testRouteGreedy() {
+		try {
+			// test for a dead end
+			List<MazeCell> route = new LinkedList<MazeCell>();
+			route.add(cellOne);
+			route.add(cellTwo);
+			route.add(cellThree);
+			assertEquals("routeGreedy() method does not return the correct route with a dead end",
+					route, mazeOne.routeGreedy(cellOne).getCells());
+			// test for visit again
+			route = new LinkedList<MazeCell>();
+			route.add(cellFour);
+			route.add(cellFive);
+			route.add(cellFour);
+			assertEquals("routeGreedy() method does not return the correct route when revisiting",
+					route, mazeTwo.routeGreedy(cellFour).getCells());
+			// test for a branching path
+			route = new LinkedList<MazeCell>();
+			route.add(cellSix);
+			route.add(cellEight);
+			assertEquals("routeGreedy() method does not return the correct route when branching",
+					route, mazeThree.routeGreedy(cellSix).getCells());
+			// test leaving the Maze
+			assertEquals("routeGreedy() method does not return the correct route when leaving the Maze",
+					new LinkedList<MazeCell>(), mazeFour.routeGreedy(cellOne).getCells());
+		} catch(UninitializedObjectException e) {
+			fail("routeGreedy() method generated an UninitializedObjectException incorrectly");
+		}
+	}
+	
+	@Test
+	public void testRoute() {
+		try {
+			// test null passageSelector
+			assertEquals("route() method does not return an empty route when passageSelector is null",
+					new LinkedList<MazeCell>(), mazeOne.route(cellOne, null).getCells());
+		} catch(UninitializedObjectException e) {
+			fail("route() method generated an UninitializedObjectException incorrectly");
+		}
+	}
+	
+	@Test
+	public void testAverageExitTime() {
+		//TODO write test cases
+	}
+	
 	/**
 	 * Tests the toString() method for unique identification Strings.
 	 */
@@ -248,6 +312,20 @@ public class MazeTest {
 		try {
 			test.routeRandom(cellOne);
 			fail("routeRandom() method should have thrown an UninitializedObjectException");
+		} catch(UninitializedObjectException e) {
+			// test passed because exception was thrown
+		}
+		// routeGreedy() test
+		try {
+			test.routeGreedy(cellOne);
+			fail("routeGreedy() method should have thrown an UninitializedObjectException");
+		} catch(UninitializedObjectException e) {
+			// test passed because exception was thrown
+		}
+		// route() test
+		try {
+			test.route(cellOne, new FirstSelector());
+			fail("route() method should have thrown an UninitializedObjectException");
 		} catch(UninitializedObjectException e) {
 			// test passed because exception was thrown
 		}
