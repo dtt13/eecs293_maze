@@ -137,7 +137,7 @@ public class MazeRoute {
 	 * @return a travel time
 	 * @throws UninitializedObjectException only thrown if a MazeCell is invalid
 	 */
-	private int calculateTravelTime(boolean isRandom) throws UninitializedObjectException { //TODO make this cleaner still
+	private int calculateTravelTime(boolean isRandom) throws UninitializedObjectException {
 		int totalTime = 0;
 		if(!route.isEmpty()) {
 			// add up the travel time from one MazeCell to the next

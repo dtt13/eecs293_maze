@@ -259,7 +259,34 @@ public class MazeTest {
 	
 	@Test
 	public void testAverageExitTime() {
-		//TODO write test cases
+		try {
+			// test a simple maze
+			assertEquals("averageExitTime() method does not return the correct time for a FirstSelector",
+					new Double(4.0), mazeOne.averageExitTime(cellThree, new FirstSelector()));
+			assertEquals("averageExitTime() method does not return the correct time for a RandomSelector",
+					new Double(4.0), mazeOne.averageExitTime(cellThree, new RandomSelector()));
+			assertEquals("averageExitTime() method does not return the correct time for a GreedySelector",
+					new Double(4.0), mazeOne.averageExitTime(cellThree, new GreedySelector()));
+			// test a maze where outside MazeCell is not in the maze
+			assertEquals("averageExitTime() method does not return IMPASSABLE correctly for a FirstSelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeOne.averageExitTime(cellEight, new FirstSelector()));
+			assertEquals("averageExitTime() method does not return IMPASSABLE correctly for a RandomSelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeOne.averageExitTime(cellEight, new RandomSelector()));
+			assertEquals("averageExitTime() method does not return IMPASSABLE correctly for a GreedySelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeOne.averageExitTime(cellEight, new GreedySelector()));
+			// test a maze with branching
+			assertEquals("averageExitTime() method does not return IMPASSABLE correctly for a FirstSelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeThree.averageExitTime(cellEight, new FirstSelector()));
+			assertEquals("averageExitTime() method does not return IMPASSABLE correctly for a RandomSelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeThree.averageExitTime(cellEight, new RandomSelector()));
+			assertEquals("averageExitTime() method does not return IMPASSABLE correctly for a GreedySelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeThree.averageExitTime(cellEight, new GreedySelector()));
+			// test null passageSelector
+			assertEquals("averageExitTime() method does not return IMPASSABLE with null PassageSelector",
+					new Double(MazeCell.IMPASSABLE_DOUBLE), mazeOne.averageExitTime(cellThree, null));
+		} catch (UninitializedObjectException e) {
+			fail("averageExitTime() method generated an UninitializedObjectException incorrectly");
+		}
 	}
 	
 	/**

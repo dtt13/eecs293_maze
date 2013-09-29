@@ -105,7 +105,8 @@ public class Maze {
 	 * and moving to adjoining MazeCells. The next cell along the path is chosen 
 	 * based on the PassageSelector's implementation of the nextCell() method. If
 	 * a dead end is reached or a MazeCell has already been visited, the routine
-	 * exits and the MazeRoute is returned.
+	 * exits and the MazeRoute is returned. An empty MazeRoute is returned if
+	 * the PassageSelector is null or a cell is not in the Maze.
 	 * 
 	 * @param initialCell - the starting MazeCell of the route to be created
 	 * @param passageSelector - implementation of the next cell algorithm
@@ -117,11 +118,7 @@ public class Maze {
 		checkValidity();
 		MazeRoute route = new MazeRoute();
 		List<MazeCell> path;
-		if(passageSelector != null) {
-			path = routePath(initialCell, null, null, passageSelector);
-		} else {
-			path = new LinkedList<MazeCell>(); // return an empty MazeRoute
-		}
+		path = routePath(initialCell, null, null, passageSelector);
 		route.addCells(path);
 		return route;
 	}
@@ -132,7 +129,7 @@ public class Maze {
 		int totalTime = 0;
 		int numPaths = 0;
 		for(MazeCell cell : cells) {
-			if(cell != outside) { //TODO check condition
+			if(cell != outside) {
 				MazeRoute route = new MazeRoute();
 				List<MazeCell> path = routePath(cell, outside, null, passageSelector);
 				route.addCells(path);
@@ -193,15 +190,10 @@ public class Maze {
 	 * @throws UninitializedObjectException only thrown if the Maze is invalid
 	 */
 	private List<MazeCell> routePath(MazeCell cell, MazeCell outside, List<MazeCell> path, PassageSelector passageSelector)
-			throws UninitializedObjectException { //TODO McCabe's
+			throws UninitializedObjectException {
 		path = initializePathIfNull(path);
-		if(!cells.contains(cell)) {
-			// base case: cell isn't in the Maze
-			path.clear();
-		} else if(path.contains(cell) || cell == outside) {
-			// base case: cell has been visited before or is exit to the maze
-			path.add(cell); //TODO check this condition^	
-		} else { // if never-before-seen cell
+		if(!isRouteBaseCase(cell, outside, path) && passageSelector != null) {
+			// if never-before-seen cell
 			path.add(cell);
 			MazeCell nextCell = passageSelector.nextCell(cell);
 			if(nextCell != null) {
@@ -225,6 +217,28 @@ public class Maze {
 			path = new LinkedList<MazeCell>();
 		}
 		return path;
+	}
+	
+	/**
+	 * Checks for a base case and changes the path accordingly.
+	 * 
+	 * @param cell - the MazeCell that the mouse is currently in
+	 * @param outside - the MazeCell indicating the end of the maze
+	 * @param path - a List of MazeCells that the mouse has previously visited
+	 * @return true if base case for routePath(); false otherwise
+	 */
+	private boolean isRouteBaseCase(MazeCell cell, MazeCell outside, List<MazeCell> path) {
+		if(!cells.contains(cell)) {
+			// base case: cell isn't in the Maze
+			path.clear();
+			return true;
+		}
+		if(path.contains(cell) || cell == outside) {
+			// base case: cell has been visited before or is exit to the maze
+			path.add(cell);
+			return true;
+		}
+		return false;
 	}
 	
 	/**
