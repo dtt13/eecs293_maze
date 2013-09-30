@@ -123,6 +123,19 @@ public class Maze {
 		return route;
 	}
 	
+	/**
+	 * Calculates the average time to exit the Maze from every other cell
+	 * in the maze, given a specific PassageSelector. In the case that one
+	 * time to reach the exit MazeCell is IMPASSABLE or the PassageSelector
+	 * is null, the average time returned is IMPASSABLE_DOUBLE. One should
+	 * note that even if a passable path exists, the PassageSelector may not
+	 * find it and may return IMPASSABLE_DOUBLE.
+	 * 
+	 * @param outside - the exit to the maze
+	 * @param passageSelector - implementation of the next cell algorithm
+	 * @return the average time to reach the exit from all other cells in the maze
+	 * @throws UninitializedObjectException only
+	 */
 	public Double averageExitTime(MazeCell outside, PassageSelector passageSelector)
 			throws UninitializedObjectException {
 		checkValidity();
@@ -199,7 +212,7 @@ public class Maze {
 			if(nextCell != null) {
 				path = routePath(nextCell, outside, path, passageSelector);
 			} else {
-				// don't recurse since there is nowhere else to go
+				// don't recurse since there is nowhere else to go (dead end)
 			}
 		}
 		return path;

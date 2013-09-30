@@ -215,6 +215,9 @@ public class MazeTest {
 		}
 	}
 	
+	/**
+	 * Tests the routeGreedy() method assuming valid Maze.
+	 */
 	@Test
 	public void testRouteGreedy() {
 		try {
@@ -246,6 +249,9 @@ public class MazeTest {
 		}
 	}
 	
+	/**
+	 * Tests the route() method assuming valid Maze.
+	 */
 	@Test
 	public void testRoute() {
 		try {
@@ -257,6 +263,9 @@ public class MazeTest {
 		}
 	}
 	
+	/**
+	 * Tests the averageExitTime() method assuming valid Maze.
+	 */
 	@Test
 	public void testAverageExitTime() {
 		try {
@@ -353,6 +362,13 @@ public class MazeTest {
 		try {
 			test.route(cellOne, new FirstSelector());
 			fail("route() method should have thrown an UninitializedObjectException");
+		} catch(UninitializedObjectException e) {
+			// test passed because exception was thrown
+		}
+		// averageExitTime() test
+		try {
+			test.averageExitTime(cellOne, new FirstSelector());
+			fail("averageExitTime() method should have thrown an UninitializedObjectException");
 		} catch(UninitializedObjectException e) {
 			// test passed because exception was thrown
 		}
